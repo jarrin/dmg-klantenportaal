@@ -10,25 +10,17 @@ $auth->requireCustomer();
 $productModel = new Product();
 $userId = $auth->getCurrentUserId();
 $products = $productModel->getByUserId($userId);
+$pageTitle = 'Mijn Producten - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mijn Producten - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Mijn Producten</h1>
+        <a href="/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
+    </div>
     
-    <div class="container">
-        <div class="page-header">
-            <h1>Mijn Producten</h1>
-            <a href="/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
-        </div>
-        
-        <?php if (empty($products)): ?>
+    <?php if (empty($products)): ?>
             <div class="alert alert-info">
                 U heeft momenteel geen producten. Klik op "Nieuw product aanvragen" om een product aan te vragen.
             </div>
@@ -93,11 +85,9 @@ $products = $productModel->getByUserId($userId);
                             </div>
                         <?php endif; ?>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+            <?php endforeach; ?>
     </div>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+<?php endif; ?>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

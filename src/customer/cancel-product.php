@@ -47,17 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+$pageTitle = 'Product Opzeggen - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Opzeggen - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
     
     <div class="container">
         <div class="page-header">
@@ -124,12 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
                 </div>
                 
-                <button type="submit" class="btn btn-danger">Opzegging Bevestigen</button>
-                <a href="/customer/products.php" class="btn btn-secondary">Annuleren</a>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-danger">Opzegging Bevestigen</button>
+            <a href="/customer/products.php" class="btn btn-secondary">Annuleren</a>
+        </form>
     </div>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -44,15 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+$pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket #<?php echo $ticket['id']; ?> - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
+<?php include __DIR__ . '/../includes/header.php'; ?>
+
+<style>
         .ticket-messages {
             background: white;
             border-radius: 8px;
@@ -85,24 +81,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .message-date {
             color: var(--secondary-color);
         }
-        .message-content {
-            line-height: 1.6;
-        }
-    </style>
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
+    .message-content {
+        line-height: 1.6;
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Ticket #<?php echo $ticket['id']; ?>: <?php echo htmlspecialchars($ticket['subject']); ?></h1>
+        <a href="/customer/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
+    </div>
     
-    <div class="container">
-        <div class="page-header">
-            <h1>Ticket #<?php echo $ticket['id']; ?>: <?php echo htmlspecialchars($ticket['subject']); ?></h1>
-            <a href="/customer/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
-        </div>
-        
-        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
-            <div class="stat-card">
-                <p>Status</p>
-                <h3><span class="badge badge-<?php echo $ticket['status']; ?>">
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+        <div class="stat-card">
+            <p>Status</p>
+            <h3><span class="badge badge-<?php echo $ticket['status']; ?>">
                     <?php echo ucfirst(str_replace('_', ' ', $ticket['status'])); ?>
                 </span></h3>
             </div>
@@ -170,10 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <button type="submit" class="btn btn-primary">Ticket heropenen en bericht verzenden</button>
                 </form>
-            </div>
-        <?php endif; ?>
-    </div>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+        </div>
+    <?php endif; ?>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

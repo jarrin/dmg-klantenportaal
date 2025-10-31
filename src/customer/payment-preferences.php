@@ -103,21 +103,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+$pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Betaalvoorkeuren - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .payment-method-info {
-            background: #f0f9ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--primary-color);
+
+<?php include __DIR__ . '/../includes/header.php'; ?>
+
+<style>
+    .payment-method-info {
+        background: #f0f9ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border-left: 4px solid var(--primary-color);
         }
         .direct-debit-fields {
             display: none;
@@ -127,24 +124,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 15px;
         }
         .direct-debit-fields.active {
-            display: block;
-        }
-    </style>
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
+        display: block;
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Betaalvoorkeuren</h1>
+        <a href="/customer/dashboard.php" class="btn btn-secondary">Terug naar dashboard</a>
+    </div>
     
-    <div class="container">
-        <div class="page-header">
-            <h1>Betaalvoorkeuren</h1>
-            <a href="/customer/dashboard.php" class="btn btn-secondary">Terug naar dashboard</a>
-        </div>
-        
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-        <?php endif; ?>
-        
-        <?php if ($error): ?>
+    <?php if ($success): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+    <?php endif; ?>
+    
+    <?php if ($error): ?>
             <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
@@ -228,6 +222,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
     </div>
+        <?php include __DIR__ . '/../includes/footer.php'; ?>
+</div>
     
     <script>
         function toggleDirectDebit() {
@@ -252,7 +248,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Initialize on page load
         toggleDirectDebit();
     </script>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>

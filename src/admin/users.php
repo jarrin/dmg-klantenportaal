@@ -62,22 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $users = $userModel->getAll('customer');
+$pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gebruikersbeheer - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
-    
-    <div class="container">
-        <div class="page-header">
-            <h1>Gebruikersbeheer</h1>
-            <button class="btn btn-primary" onclick="document.getElementById('newUserForm').style.display='block'">
+<?php include __DIR__ . '/../includes/header.php'; ?>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Gebruikersbeheer</h1>
+        <button class="btn btn-primary" onclick="document.getElementById('newUserForm').style.display='block'">
                 Nieuwe gebruiker
             </button>
         </div>
@@ -188,6 +180,4 @@ $users = $userModel->getAll('customer');
         </table>
     </div>
     
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

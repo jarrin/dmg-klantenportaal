@@ -56,33 +56,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+$pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket #<?php echo $ticket['id']; ?> - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .ticket-messages {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .message {
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--border-color);
-        }
-        .message.staff-reply {
-            background: #f0f9ff;
-            border-left-color: var(--primary-color);
-        }
-        .message.customer-message {
-            background: var(--light-color);
+<?php include __DIR__ . '/../includes/header.php'; ?>
+
+<style>
+    .ticket-messages {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .message {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border-left: 4px solid var(--border-color);
+    }
+    .message.staff-reply {
+        background: #f0f9ff;
+        border-left-color: var(--primary-color);
+    }
+    .message.customer-message {
+        background: var(--light-color);
         }
         .message-header {
             display: flex;
@@ -97,15 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .message-date {
             color: var(--secondary-color);
         }
-        .message-content {
-            line-height: 1.6;
-        }
-    </style>
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
-    
-    <div class="container">
+    .message-body {
+        line-height: 1.6;
+    }
+</style>
+
+<div class="container">
         <div class="page-header">
             <h1>Ticket #<?php echo $ticket['id']; ?>: <?php echo htmlspecialchars($ticket['subject']); ?></h1>
             <a href="/admin/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
@@ -183,9 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <button type="submit" class="btn btn-primary">Antwoord Verzenden</button>
             </form>
-        </div>
+        </form>
     </div>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

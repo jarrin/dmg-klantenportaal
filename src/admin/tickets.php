@@ -29,26 +29,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $tickets = $ticketModel->getAll();
 $stats = $ticketModel->getStatistics();
+$pageTitle = 'Ticketbeheer - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticketbeheer - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
+
+<div class="container">
+    <h1>Ticketbeheer</h1>
     
-    <div class="container">
-        <h1>Ticketbeheer</h1>
-        
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-        <?php endif; ?>
-        
-        <?php if ($error): ?>
+    <?php if ($success): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+    <?php endif; ?>
+    
+    <?php if ($error): ?>
             <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
@@ -116,10 +108,8 @@ $stats = $ticketModel->getStatistics();
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
-            </table>
-        </div>
+        </table>
     </div>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

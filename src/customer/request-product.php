@@ -53,17 +53,9 @@ $stmt = $db->prepare("
 ");
 $stmt->execute([$userId]);
 $requests = $stmt->fetchAll();
+$pageTitle = 'Product Aanvragen - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Aanvragen - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
     
     <div class="container">
         <div class="page-header">
@@ -158,9 +150,7 @@ $requests = $stmt->fetchAll();
                     </table>
                 <?php endif; ?>
             </div>
-        </div>
     </div>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

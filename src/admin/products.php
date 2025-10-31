@@ -197,31 +197,23 @@ $stmt = $db->query("
     ORDER BY cr.created_at DESC
 ");
 $pendingCancellations = $stmt->fetchAll();
+$pageTitle = 'Productbeheer - ' . APP_NAME;
 ?>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productbeheer - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Productbeheer</h1>
+        <button class="btn btn-primary" onclick="document.getElementById('newProductForm').style.display='block'">
+            Nieuw product
+        </button>
+    </div>
     
-    <div class="container">
-        <div class="page-header">
-            <h1>Productbeheer</h1>
-            <button class="btn btn-primary" onclick="document.getElementById('newProductForm').style.display='block'">
-                Nieuw product
-            </button>
-        </div>
-        
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-        <?php endif; ?>
-        
-        <?php if ($error): ?>
+    <?php if ($success): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+    <?php endif; ?>
+    
+    <?php if ($error): ?>
             <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
@@ -429,10 +421,8 @@ $pendingCancellations = $stmt->fetchAll();
                         Annuleren
                     </button>
                 </form>
-            </div>
         </div>
     </div>
-    
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-</body>
-</html>
+</div>
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>
