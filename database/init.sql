@@ -158,11 +158,11 @@ INSERT INTO product_types (name, description, default_duration_months) VALUES
 
 -- Insert default admin user (password: admin123 - MUST BE CHANGED IN PRODUCTION!)
 INSERT INTO users (email, password, first_name, last_name, role) VALUES
-('admin@dmg.nl', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHu3JlckrXwv4Gy2sIJj2.7.8dLLdQxn6i', 'Admin', 'Beheerder', 'admin');
+UPDATE users SET password = '$2y$10$GofcEn.3KMQ9p.mqYGqEGOezkn0GvRA.2Pk4eVTKchG/rv3MhRN7S' WHERE email = 'admin@dmg.nl';
 
 -- Insert demo customer user (password: customer123)
 INSERT INTO users (email, password, first_name, last_name, company_name, address, postal_code, city, role) VALUES
-('demo@example.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHu3JlckrXwv4Gy2sIJj2.7.8dLLdQxn6i', 'Demo', 'Gebruiker', 'Demo BV', 'Demostraat 1', '1234 AB', 'Amsterdam', 'customer');
+UPDATE users SET password = '$2y$10$nZj0U6gQE/epkECbDeo2kOkjfYbeIn00M6R3vT.t/bTZgwIIR7Cnu' WHERE email = 'demo@example.com';
 
 -- Insert demo products
 INSERT INTO products (user_id, product_type_id, name, description, domain_name, registration_date, expiry_date, price, status) VALUES
