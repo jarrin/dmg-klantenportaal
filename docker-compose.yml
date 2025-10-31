@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dmg_klantportaal_web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./apache-config:/etc/apache2/sites-available
+    depends_on:
+      - db
+    networks:
+      - dmg_network
+    environment:
+      - DB_HOST=db
+      - DB_NAME=klantportaal
+      - DB_USER=dmg_user
+      - DB_PASSWORD=dmg_password
+      - ENVIRONMENT=development
+
+  db:
+    image: mariadb:10.11
+    container_name: dmg_klantportaal_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=klantportaal
+      - MYSQL_USER=dmg_user
+      - MYSQL_PASSWORD=dmg_password
+    networks:
+      - dmg_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: dmg_klantportaal_phpmyadmin
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=dmg_user
+      - PMA_PASSWORD=dmg_password
+    networks:
+      - dmg_network
+
+volumes:
+  db_data:
+
+networks:
+  dmg_network:
+    driver: bridge

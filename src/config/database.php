@@ -1,27 +1,41 @@
 <?php
-// Simple PDO Postgres connector using environment variables
-// Expected env: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 
-function getDatabaseConnection(): PDO
-{
-	$host = getenv('DB_HOST') ?: '127.0.0.1';
-	$port = getenv('DB_PORT') ?: '5432';
-	$db   = getenv('DB_NAME') ?: 'dmg';
-	$user = getenv('DB_USER') ?: 'dmg_user';
-	$pass = getenv('DB_PASSWORD') ?: '';
-
-	$dsn = "pgsql:host={$host};port={$port};dbname={$db}";
-
-	try {
-		$pdo = new PDO($dsn, $user, $pass, [
-			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-		]);
-		return $pdo;
-	} catch (PDOException $e) {
-		// For development, echo error and exit. In production, log and show generic message.
-		echo "Database connection failed: " . $e->getMessage();
-		exit(1);
-	}
+class Database {
+    private static $instance = null;
+    private $connection;
+    
+    private function __construct() {
+        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+        
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+        
+        try {
+            $this->connection = new PDO($dsn, DB_USER, DB_PASSWORD, $options);
+        } catch (PDOException $e) {
+            throw new Exception("Connection failed: " . $e->getMessage());
+        }
+    }
+    
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    public function getConnection() {
+        return $this->connection;
+    }
+    
+    // Prevent cloning
+    private function __clone() {}
+    
+    // Prevent unserialization
+    public function __wakeup() {
+        throw new Exception("Cannot unserialize singleton");
+    }
 }
-

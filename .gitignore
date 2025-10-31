@@ -1,0 +1,26 @@
+# Environment files
+.env
+.env.local
+
+# Docker volumes
+db_data/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Upload directories
+src/uploads/*
+!src/uploads/.gitkeep

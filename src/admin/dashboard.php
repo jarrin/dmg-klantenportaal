@@ -1,0 +1,98 @@
+<?php
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../classes/Auth.php';
+require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Product.php';
+require_once __DIR__ . '/../classes/Ticket.php';
+
+$auth = new Auth();
+$auth->requireAdmin();
+
+$userModel = new User();
+$productModel = new Product();
+$ticketModel = new Ticket();
+
+$totalUsers = count($userModel->getAll('customer'));
+$totalProducts = count($productModel->getAll());
+$ticketStats = $ticketModel->getStatistics();
+$expiringProducts = $productModel->getExpiringProducts(30);
+?>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - <?php echo APP_NAME; ?></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <?php include __DIR__ . '/includes/header.php'; ?>
+    
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3><?php echo $totalUsers; ?></h3>
+                <p>Totaal Klanten</p>
+            </div>
+            <div class="stat-card">
+                <h3><?php echo $totalProducts; ?></h3>
+                <p>Totaal Producten</p>
+            </div>
+            <div class="stat-card">
+                <h3><?php echo $ticketStats['new_tickets']; ?></h3>
+                <p>Nieuwe Tickets</p>
+            </div>
+            <div class="stat-card">
+                <h3><?php echo $ticketStats['in_progress']; ?></h3>
+                <p>Tickets In Behandeling</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-section">
+                <h2>Verlopen Producten (30 dagen)</h2>
+                <?php if (empty($expiringProducts)): ?>
+                    <p>Geen producten verlopen binnen 30 dagen.</p>
+                <?php else: ?>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Klant</th>
+                                <th>Verloopt op</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($expiringProducts as $product): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($product['first_name'] . ' ' . $product['last_name']); ?></td>
+                                    <td><?php echo date('d-m-Y', strtotime($product['expiry_date'])); ?></td>
+                                    <td>
+                                        <a href="/admin/products.php?extend=<?php echo $product['id']; ?>" class="btn btn-sm btn-primary">Verlengen</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+            
+            <div class="dashboard-section">
+                <h2>Snelle Acties</h2>
+                <div class="quick-actions">
+                    <a href="/admin/users.php?action=new" class="btn btn-primary">Nieuwe gebruiker toevoegen</a>
+                    <a href="/admin/products.php?action=new" class="btn btn-primary">Nieuw product toevoegen</a>
+                    <a href="/admin/tickets.php" class="btn btn-secondary">Alle tickets bekijken</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+</body>
+</html>
