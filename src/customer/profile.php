@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Validator.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
@@ -30,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($data['first_name']) || empty($data['last_name'])) {
             $error = 'Voornaam en achternaam zijn verplicht';
+        } elseif (!Validator::validateUser($data, true)) {
+            $error = Validator::getFirstError();
         } else {
             if ($userModel->update($userId, $data)) {
                 $success = 'Profiel succesvol bijgewerkt';
@@ -83,7 +86,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="update_profile">
                     
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="first_name">Voornaam *</label>
                             <input type="text" id="first_name" name="first_name" 
@@ -95,7 +97,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                             <input type="text" id="last_name" name="last_name" 
                                    value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
                         </div>
-                    </div>
                     
                     <div class="form-group">
                         <label for="email">E-mailadres</label>
@@ -115,7 +116,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                                value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>">
                     </div>
                     
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="postal_code">Postcode</label>
                             <input type="text" id="postal_code" name="postal_code" 
@@ -127,7 +127,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                             <input type="text" id="city" name="city" 
                                    value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
                         </div>
-                    </div>
                     
                     <div class="form-group">
                         <label for="phone">Telefoonnummer</label>
@@ -135,7 +134,7 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                                value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Opslaan</button>
+                    <button type="submit" class="btn btn-primary full-width">Opslaan</button>
                 </form>
             </div>
             
@@ -144,23 +143,23 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="change_password">
                     
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="current_password">Huidig wachtwoord *</label>
                         <input type="password" id="current_password" name="current_password" required>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="new_password">Nieuw wachtwoord *</label>
                         <input type="password" id="new_password" name="new_password" required>
                         <small>Minimaal 6 tekens</small>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="confirm_password">Bevestig nieuw wachtwoord *</label>
                         <input type="password" id="confirm_password" name="confirm_password" required>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Wachtwoord wijzigen</button>
+                    <button type="submit" class="btn btn-primary full-width">Wachtwoord wijzigen</button>
                 </form>
             </div>
         </div>

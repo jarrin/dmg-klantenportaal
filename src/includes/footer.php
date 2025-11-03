@@ -7,5 +7,6 @@
                 </footer>
         </div> <!-- .main-content -->
     </div> <!-- .layout-wrapper -->
+    <script src="/js/confirm-modal.js"></script>
 </body>
 </html>
