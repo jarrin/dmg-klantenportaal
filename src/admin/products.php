@@ -350,6 +350,11 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                     <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
                                 </form>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="action" value="cancel">
+                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                    <button type="submit" class="btn btn-sm btn-secondary">Opzeggen</button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
