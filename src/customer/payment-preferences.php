@@ -180,30 +180,32 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
             <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
-        <div class="dashboard-section">            
+        <div class="dashboard-section" style="max-width: 800px; margin: 0 auto;">
+            <h2>Betaalmethode</h2>
+            
             <form method="POST" action="" enctype="multipart/form-data">
                 <div class="form-group">
-                    <div class="payment-method-info">
-                        <label>
-                            <input type="radio" name="payment_method" value="invoice" 
-                                   <?php echo (!$preferences || $preferences['payment_method'] === 'invoice') ? 'checked' : ''; ?>
-                                   onchange="toggleDirectDebit()">
-                            <strong>Betalen via factuur</strong>
-                        </label>
-                        <p>U ontvangt maandelijks een factuur per e-mail met een betalingstermijn van 14 dagen.</p>
+                    <label>
+                        <input type="radio" name="payment_method" value="invoice" 
+                               <?php echo (!$preferences || $preferences['payment_method'] === 'invoice') ? 'checked' : ''; ?>
+                               onchange="toggleDirectDebit()">
+                        <strong>Betalen via factuur</strong>
+                    </label>
+                    <div class="payment-method-info" style="margin-left: 25px; margin-top: 10px;">
+                        U ontvangt maandelijks een factuur per e-mail met een betalingstermijn van 14 dagen.
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <div class="payment-method-info">
-                        <label>
-                            <input type="radio" name="payment_method" value="direct_debit"
-                                   <?php echo ($preferences && $preferences['payment_method'] === 'direct_debit') ? 'checked' : ''; ?>
-                                   onchange="toggleDirectDebit()">
-                            <strong>Automatisch incasso</strong>
-                        </label>
-                        <p>Het verschuldigde bedrag wordt automatisch van uw rekening afgeschreven. 
-                        Hiervoor is een éénmalig mandaat vereist.</p>
+                    <label>
+                        <input type="radio" name="payment_method" value="direct_debit"
+                               <?php echo ($preferences && $preferences['payment_method'] === 'direct_debit') ? 'checked' : ''; ?>
+                               onchange="toggleDirectDebit()">
+                        <strong>Automatisch incasso</strong>
+                    </label>
+                    <div class="payment-method-info" style="margin-left: 25px; margin-top: 10px;">
+                        Het verschuldigde bedrag wordt automatisch van uw rekening afgeschreven. 
+                        Hiervoor is een éénmalig mandaat vereist.
                     </div>
                 </div>
                 
@@ -240,7 +242,7 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                         <?php if ($preferences && $preferences['mandate_signature']): ?>
                             <div class="signature-current">
                                 <img src="<?php echo htmlspecialchars($preferences['mandate_signature']); ?>" 
-                                     alt="Huidige handtekening">
+                                     alt="Huidige handtekening" style="max-width: 200px; border: 1px solid #ddd; padding: 5px;">
                                 <p><small>Huidige handtekening</small></p>
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('signaturePad').style.display='block';">
                                     Handtekening vervangen
@@ -248,7 +250,7 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                             </div>
                         <?php endif; ?>
                         
-                        <div id="signaturePad" class="signature-pad-container" style="display: <?php echo ($preferences && $preferences['mandate_signature']) ? 'none' : 'block'; ?>;">
+                        <div id="signaturePad" style="display: <?php echo ($preferences && $preferences['mandate_signature']) ? 'none' : 'block'; ?>; margin-top: 10px;">
                             <p><strong>Teken uw handtekening hieronder:</strong></p>
                             <canvas id="signatureCanvas" width="500" height="150">
                                 Je browser ondersteunt het canvas element niet.
