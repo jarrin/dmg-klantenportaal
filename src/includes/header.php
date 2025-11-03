@@ -15,9 +15,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <title><?php echo $pageTitle ?? APP_NAME; ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/confirm-modal.css">
     <link rel="stylesheet" href="/css/custom-components.css">
-    <link rel="stylesheet" href="/css/confirm-modal.css">
 </head>
 <body>
     <div class="layout-wrapper">
