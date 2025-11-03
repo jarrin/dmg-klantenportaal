@@ -138,7 +138,7 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                                value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Opslaan</button>
+                    <button type="submit" class="btn btn-primary full-width">Opslaan</button>
                 </form>
             </div>
             
@@ -163,7 +163,7 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                         <input type="password" id="confirm_password" name="confirm_password" required>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Wachtwoord wijzigen</button>
+                    <button type="submit" class="btn btn-primary full-width">Wachtwoord wijzigen</button>
                 </form>
             </div>
         </div>
@@ -182,6 +182,5 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
             </div>
         </div>
     </div>
+    <?php include __DIR__ . '/../includes/footer.php'; ?>
 </div>
-
-<?php include __DIR__ . '/../includes/footer.php'; ?>
