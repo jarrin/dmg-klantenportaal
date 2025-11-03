@@ -48,51 +48,13 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
 
-<style>
-        .ticket-messages {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .message {
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--border-color);
-        }
-        .message.staff-reply {
-            background: #f0f9ff;
-            border-left-color: var(--primary-color);
-        }
-        .message.customer-message {
-            background: var(--light-color);
-        }
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        .message-author {
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-        .message-date {
-            color: var(--secondary-color);
-        }
-    .message-content {
-        line-height: 1.6;
-    }
-</style>
-
 <div class="container">
     <div class="page-header">
         <h1>Ticket #<?php echo $ticket['id']; ?>: <?php echo htmlspecialchars($ticket['subject']); ?></h1>
         <a href="/customer/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
     </div>
     
-    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+    <div class="stats-grid ticket-stats-grid">
         <div class="stat-card">
             <p>Status</p>
             <h3><span class="badge badge-<?php echo $ticket['status']; ?>">
@@ -105,9 +67,9 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
                     <?php echo ucfirst($ticket['priority']); ?>
                 </span></h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card ticket-detail-stat">
                 <p>Aangemaakt</p>
-                <h3 style="font-size: 18px;"><?php echo date('d-m-Y H:i', strtotime($ticket['created_at'])); ?></h3>
+                <h3><?php echo date('d-m-Y H:i', strtotime($ticket['created_at'])); ?></h3>
             </div>
         </div>
         
@@ -143,11 +105,11 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
             <div class="dashboard-section">
                 <h2>Antwoord Toevoegen</h2>
                 <form method="POST" action="">
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="message">Uw bericht</label>
                         <textarea id="message" name="message" rows="6" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Bericht verzenden</button>
+                    <button type="submit" class="btn btn-primary full-width">Bericht verzenden</button>
                 </form>
             </div>
         <?php else: ?>
