@@ -83,7 +83,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="update_profile">
                     
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="first_name">Voornaam *</label>
                             <input type="text" id="first_name" name="first_name" 
@@ -95,7 +94,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                             <input type="text" id="last_name" name="last_name" 
                                    value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
                         </div>
-                    </div>
                     
                     <div class="form-group">
                         <label for="email">E-mailadres</label>
@@ -115,7 +113,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                                value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>">
                     </div>
                     
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="postal_code">Postcode</label>
                             <input type="text" id="postal_code" name="postal_code" 
@@ -127,7 +124,6 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                             <input type="text" id="city" name="city" 
                                    value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
                         </div>
-                    </div>
                     
                     <div class="form-group">
                         <label for="phone">Telefoonnummer</label>
