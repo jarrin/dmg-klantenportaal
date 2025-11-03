@@ -78,6 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $error = 'Er is een fout opgetreden bij het verwijderen van het product';
         }
+    } elseif ($action === 'activate') {
+    $productId = $_POST['product_id'] ?? 0;
+
+    if ($productModel->activateProduct($productId)) {
+        $success = 'Product succesvol geactiveerd';
+    } else {
+        $error = 'Er is een fout opgetreden bij het activeren van het product';
+    }
     } elseif ($action === 'approve_request') {
         $requestId = $_POST['request_id'] ?? 0;
         
