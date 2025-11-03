@@ -157,7 +157,7 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
             <h2>Antwoord Toevoegen</h2>
             <form method="POST" action="">
                 <input type="hidden" name="action" value="reply">
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="message">Uw antwoord</label>
                     <textarea id="message" name="message" rows="6" required></textarea>
                 </div>
