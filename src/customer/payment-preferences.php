@@ -291,7 +291,7 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">Voorkeuren Opslaan</button>
+                <button type="submit" class="btn btn-primary full-width">Voorkeuren Opslaan</button>
             </form>
         </div>
     </div>
