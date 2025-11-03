@@ -368,7 +368,7 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="activate">
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-secondary">Activieren</button>
+                                        <button type="submit" class="btn btn-sm badge-active">Activieren</button>
                                     </form>
                                 <?php endif; ?>
                             </td>
