@@ -328,6 +328,12 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                             <td>
                                 <?php if ($product['status'] === 'active'): ?>
                                     <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action" value="extend">
+                                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                        <input type="hidden" name="months" value="12">
+                                        <button type="submit" class="btn btn-sm btn-primary">Verlengen</button>
+                                    </form>
+                                    <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="cancel">
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                         <button type="submit" class="btn btn-sm btn-secondary">Opzeggen</button>
