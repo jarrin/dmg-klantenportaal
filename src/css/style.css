@@ -991,9 +991,10 @@ body {
 /* Tables */
 .data-table {
     width: 100%;
-    background: white;
+    background: var(--bg-color);
     border-radius: 8px;
     overflow: hidden;
+    margin-bottom: var(--spacing-lg);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
