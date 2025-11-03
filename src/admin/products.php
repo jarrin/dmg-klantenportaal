@@ -347,7 +347,7 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                                 <form method="POST" style="display: inline;">
                                     <input type="hidden" name="action" value="cancel">
                                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-secondary">Opzeggen</button>
+                                    <button type="submit" class="btn btn-sm btn-secondary">Activieren</button>
                                 </form>
                             </td>
                         </tr>
