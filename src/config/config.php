@@ -10,7 +10,6 @@ define('DB_CHARSET', 'utf8mb4');
 define('APP_NAME', 'DMG Klantportaal');
 define('APP_URL', 'http://localhost:8080');
 define('ENVIRONMENT', getenv('ENVIRONMENT') ?: 'development');
-define('APP_LANGUAGE', getenv('APP_LANGUAGE') ?: 'en'); // Language setting: 'en' for English
 
 // Session configuration
 define('SESSION_LIFETIME', 3600); // 1 hour
@@ -36,10 +35,6 @@ if (ENVIRONMENT === 'development') {
     error_reporting(0);
     ini_set('display_errors', 0);
 }
-
-// Initialize language system
-require_once __DIR__ . '/../classes/Language.php';
-Language::init(APP_LANGUAGE);
 
 // Start session
 session_name(SESSION_NAME);
