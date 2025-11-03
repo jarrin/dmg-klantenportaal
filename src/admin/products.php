@@ -326,7 +326,7 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                             <td>€<?php echo number_format($product['price'], 2, ',', '.'); ?></td>
                             <td><span class="badge badge-<?php echo $product['status']; ?>"><?php echo ucfirst($product['status']); ?></span></td>
                             <td>
-                                <?php if ($product['status'] === 'active'): ?>
+                                <?php if ($product['status'] === 'onactive'): ?>
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="extend">
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
