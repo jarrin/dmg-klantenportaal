@@ -75,7 +75,7 @@ $pageTitle = 'Product Aanvragen - ' . APP_NAME;
             <div class="dashboard-section">
                 <h2>Nieuwe Aanvraag</h2>
                 <form method="POST" action="">
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="product_type_id">Product Type *</label>
                         <select id="product_type_id" name="product_type_id" required onchange="loadProductTypeDetails()">
                             <option value="">-- Selecteer een product type --</option>
@@ -103,17 +103,17 @@ $pageTitle = 'Product Aanvragen - ' . APP_NAME;
                         <small>Laat leeg indien niet van toepassing</small>
                     </div>
 
-                    <div class="form-group duration-info" id="durationInfo">
+                    <div class="form-group duration-info full-width" id="durationInfo">
                         <strong>Looptijd:</strong> <span id="durationValue"></span> maanden
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="additional_info">Aanvullende Informatie</label>
                         <textarea id="additional_info" name="additional_info" rows="4" 
                                   placeholder="Eventuele extra wensen of opmerkingen..."></textarea>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Aanvraag Indienen</button>
+                    <button type="submit" class="btn btn-primary full-width">Aanvraag Indienen</button>
                 </form>
             </div>
             
