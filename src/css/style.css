@@ -11,13 +11,13 @@
     --primary-hover: #004f82;
     --primary-dark: #1e293b;
     --primary-light: #dbeafe;
-    
+
     /* Secondary Colors */
     --secondary-color: #64748b;
     --secondary-hover: #475569;
     --secondary-light: #f1f5f9;
     --secondary-dark: #334155;
-    
+
     /* Status Colors */
     --success-color: #10b981;
     --success-light: #dcfce7;
@@ -31,7 +31,7 @@
     --info-color: #3b82f6;
     --info-light: #dbeafe;
     --info-dark: #1e40af;
-    
+
     /* Neutral Colors */
     --dark-color: #1e293b;
     --light-color: #f8fafc;
@@ -47,31 +47,31 @@
     --gray-700: #374151;
     --gray-800: #1f2937;
     --gray-900: #111827;
-    
+
     /* Text Colors */
     --text-color: #334155;
     --text-light: #64748b;
     --text-dark: #0f172a;
     --text-muted: #94a3b8;
-    
+
     /* Background Colors */
     --bg-color: #ffffff;
     --bg-light: #f8fafc;
     --bg-dark: #1e293b;
     --bg-glass: rgba(255, 255, 255, 0.15);
     --bg-overlay: rgba(0, 0, 0, 0.5);
-    
+
     /* Border Colors */
     --border-color: #e2e8f0;
     --border-light: #f1f5f9;
     --border-dark: #cbd5e1;
-    
+
     /* Sidebar Colors */
     --sidebar-bg: #ffffff;
     --sidebar-admin-bg: #1e293b;
     --sidebar-width: 260px;
     --sidebar-collapsed-width: 70px;
-    
+
     /* Typography */
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-size-xs: 12px;
@@ -90,7 +90,7 @@
     --line-height-normal: 1.5;
     --line-height-relaxed: 1.6;
     --line-height-loose: 2;
-    
+
     /* Spacing */
     --spacing-xs: 5px;
     --spacing-sm: 10px;
@@ -99,41 +99,41 @@
     --spacing-xl: 30px;
     --spacing-2xl: 40px;
     --spacing-3xl: 50px;
-    
+
     /* Border Radius */
     --radius-sm: 5px;
     --radius-md: 8px;
     --radius-lg: 10px;
     --radius-xl: 15px;
     --radius-full: 50%;
-    
+
     /* Shadows */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
     --shadow-xl: 0 10px 25px rgba(0, 0, 0, 0.2);
     --shadow-2xl: 0 20px 40px rgba(0, 0, 0, 0.25);
-    
+
     /* Transitions */
     --transition-fast: 0.15s ease;
     --transition-base: 0.3s ease;
     --transition-slow: 0.5s ease;
-    
+
     /* Z-index layers */
     --z-dropdown: 100;
     --z-sticky: 500;
     --z-sidebar: 1000;
     --z-modal: 2000;
     --z-tooltip: 3000;
-    
+
     /* Container */
     --container-max-width: 1400px;
-    
+
     /* Form Elements */
     --input-height: 40px;
     --input-padding: 10px;
     --input-border-width: 1px;
-    
+
     /* Button Sizes */
     --btn-padding-sm: 5px 10px;
     --btn-padding-md: 10px 20px;
@@ -427,7 +427,7 @@ body {
     .brand-title {
         font-size: 40px;
     }
-    
+
     .brand-tagline {
         font-size: var(--font-size-lg);
     }
@@ -437,21 +437,21 @@ body {
     .login-split-layout {
         flex-direction: column;
     }
-    
+
     .login-info-section {
         flex: none;
         min-height: 40vh;
         padding: var(--spacing-xl);
     }
-    
+
     .brand-title {
         font-size: 32px;
     }
-    
+
     .features-section {
         display: none;
     }
-    
+
     .login-form-section {
         flex: none;
         padding: var(--spacing-xl);
@@ -462,20 +462,20 @@ body {
     .login-info-section {
         padding: var(--spacing-lg);
     }
-    
+
     .brand-icon {
         width: 60px;
         height: 60px;
     }
-    
+
     .brand-title {
         font-size: 28px;
     }
-    
+
     .login-form-section {
         padding: var(--spacing-lg);
     }
-    
+
     .login-header h2 {
         font-size: var(--font-size-2xl);
     }
@@ -908,6 +908,7 @@ body {
     margin-bottom: 20px;
     color: var(--dark-color);
 }
+
 .dashboard-section form {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1144,6 +1145,122 @@ body {
     gap: 15px;
 }
 
+.payment-method-info {
+    background: var(--bg-color);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    border: 2px solid var(--border-color);
+    min-height: 160px;
+    border-left: 4px solid var(--primary-color);
+    color: var(--text-color);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    transition: var(--transition-base);
+    cursor: pointer;
+}
+
+.payment-method-info:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.payment-method-info label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    cursor: pointer;
+    font-weight: var(--font-weight-medium);
+}
+
+.payment-method-info input[type="radio"] {
+    margin-top: 3px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: var(--primary-color);
+}
+
+.payment-method-info strong {
+    color: var(--text-dark);
+    font-size: var(--font-size-base);
+}
+
+.payment-method-info p {
+    margin-left: 34px;
+    margin-bottom: 0;
+    color: var(--text-light);
+    line-height: var(--line-height-relaxed);
+}
+
+.direct-debit-fields {
+    display: none;
+    background: var(--light-color);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    margin-top: var(--spacing-md);
+}
+
+.direct-debit-fields.active {
+    display: block;
+}
+
+.direct-debit-fields h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-dark);
+}
+
+.direct-debit-fields p {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-color);
+}
+
+.signature-current {
+    margin-bottom: var(--spacing-sm);
+}
+
+.signature-current img {
+    max-width: 200px;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+}
+
+.signature-current p {
+    margin-top: var(--spacing-xs);
+}
+
+.signature-current p small {
+    color: var(--text-light);
+}
+
+.signature-pad-container {
+    margin-top: var(--spacing-sm);
+}
+
+.signature-pad-container p {
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-dark);
+}
+
+#signatureCanvas {
+    border: 2px solid var(--dark-color);
+    display: block;
+    background: var(--white);
+    cursor: crosshair;
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+}
+
+.signature-actions {
+    margin-top: var(--spacing-sm);
+}
+
+
 /* Modal */
 .form-modal {
     position: fixed;
@@ -1233,40 +1350,44 @@ body {
 
 /* Responsive */
 @media (max-width: 968px) {
+    .payment-method-info {
+        min-height: auto;
+    }
+
     .sidebar {
         width: 70px;
     }
-    
+
     .sidebar-header {
         padding: 20px 10px;
     }
-    
+
     .sidebar-logo,
     .sidebar-role,
     .nav-text {
         display: none;
     }
-    
+
     .nav-item {
         justify-content: center;
         padding: 12px 10px;
     }
-    
+
     .nav-icon {
         margin-right: 0;
         font-size: 24px;
     }
-    
+
     .main-content {
         margin-left: 70px;
     }
-    
+
     .welcome-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
-    
+
     .welcome-title {
         font-size: 22px;
     }
@@ -1277,45 +1398,45 @@ body {
         width: 0;
         transform: translateX(-100%);
     }
-    
+
     .main-content {
         margin-left: 0;
     }
-    
+
     .welcome-header {
         padding: 20px;
     }
-    
+
     .page-content {
         padding: 20px;
     }
-    
+
     .header-content {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .main-nav {
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .products-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .page-header {
         flex-direction: column;
         gap: 15px;

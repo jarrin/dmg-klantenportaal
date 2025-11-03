@@ -166,26 +166,6 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
 
 <?php include __DIR__ . '/../includes/header.php'; ?>
 
-<style>
-    .payment-method-info {
-        background: #f0f9ff;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        border-left: 4px solid var(--primary-color);
-        }
-        .direct-debit-fields {
-            display: none;
-            background: var(--light-color);
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 15px;
-        }
-        .direct-debit-fields.active {
-        display: block;
-    }
-</style>
-
 <div class="container">
     <div class="page-header">
         <h1>Betaalvoorkeuren</h1>
@@ -200,36 +180,34 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
             <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
-        <div class="dashboard-section" style="max-width: 800px; margin: 0 auto;">
-            <h2>Betaalmethode</h2>
-            
+        <div class="dashboard-section">            
             <form method="POST" action="" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label>
-                        <input type="radio" name="payment_method" value="invoice" 
-                               <?php echo (!$preferences || $preferences['payment_method'] === 'invoice') ? 'checked' : ''; ?>
-                               onchange="toggleDirectDebit()">
-                        <strong>Betalen via factuur</strong>
-                    </label>
-                    <div class="payment-method-info" style="margin-left: 25px; margin-top: 10px;">
-                        U ontvangt maandelijks een factuur per e-mail met een betalingstermijn van 14 dagen.
+                    <div class="payment-method-info">
+                        <label>
+                            <input type="radio" name="payment_method" value="invoice" 
+                                   <?php echo (!$preferences || $preferences['payment_method'] === 'invoice') ? 'checked' : ''; ?>
+                                   onchange="toggleDirectDebit()">
+                            <strong>Betalen via factuur</strong>
+                        </label>
+                        <p>U ontvangt maandelijks een factuur per e-mail met een betalingstermijn van 14 dagen.</p>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label>
-                        <input type="radio" name="payment_method" value="direct_debit"
-                               <?php echo ($preferences && $preferences['payment_method'] === 'direct_debit') ? 'checked' : ''; ?>
-                               onchange="toggleDirectDebit()">
-                        <strong>Automatisch incasso</strong>
-                    </label>
-                    <div class="payment-method-info" style="margin-left: 25px; margin-top: 10px;">
-                        Het verschuldigde bedrag wordt automatisch van uw rekening afgeschreven. 
-                        Hiervoor is een éénmalig mandaat vereist.
+                    <div class="payment-method-info">
+                        <label>
+                            <input type="radio" name="payment_method" value="direct_debit"
+                                   <?php echo ($preferences && $preferences['payment_method'] === 'direct_debit') ? 'checked' : ''; ?>
+                                   onchange="toggleDirectDebit()">
+                            <strong>Automatisch incasso</strong>
+                        </label>
+                        <p>Het verschuldigde bedrag wordt automatisch van uw rekening afgeschreven. 
+                        Hiervoor is een éénmalig mandaat vereist.</p>
                     </div>
                 </div>
                 
-                <div id="directDebitFields" class="direct-debit-fields <?php echo ($preferences && $preferences['payment_method'] === 'direct_debit') ? 'active' : ''; ?>">
+                <div id="directDebitFields" class="direct-debit-fields full-width <?php echo ($preferences && $preferences['payment_method'] === 'direct_debit') ? 'active' : ''; ?>">
                     <h3>Incasso Mandaat</h3>
                     <p>Vul de onderstaande gegevens in voor het SEPA incasso mandaat:</p>
                     
@@ -260,9 +238,9 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                     <div class="form-group">
                         <label for="signature">Handtekening *</label>
                         <?php if ($preferences && $preferences['mandate_signature']): ?>
-                            <div style="margin-bottom: 10px;">
+                            <div class="signature-current">
                                 <img src="<?php echo htmlspecialchars($preferences['mandate_signature']); ?>" 
-                                     alt="Huidige handtekening" style="max-width: 200px; border: 1px solid #ddd; padding: 5px;">
+                                     alt="Huidige handtekening">
                                 <p><small>Huidige handtekening</small></p>
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('signaturePad').style.display='block';">
                                     Handtekening vervangen
@@ -270,13 +248,12 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                             </div>
                         <?php endif; ?>
                         
-                        <div id="signaturePad" style="display: <?php echo ($preferences && $preferences['mandate_signature']) ? 'none' : 'block'; ?>; margin-top: 10px;">
+                        <div id="signaturePad" class="signature-pad-container" style="display: <?php echo ($preferences && $preferences['mandate_signature']) ? 'none' : 'block'; ?>;">
                             <p><strong>Teken uw handtekening hieronder:</strong></p>
-                            <canvas id="signatureCanvas" width="500" height="150" 
-                                    style="border: 2px solid #333; display: block; background: white; cursor: crosshair; margin-bottom: 10px;">
+                            <canvas id="signatureCanvas" width="500" height="150">
                                 Je browser ondersteunt het canvas element niet.
                             </canvas>
-                            <div>
+                            <div class="signature-actions">
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="clearSignature()">
                                     Wissen
                                 </button>
@@ -297,124 +274,4 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
     </div>
         <?php include __DIR__ . '/../includes/footer.php'; ?>
 </div>
-    
-    <script>
-        // Canvas signature drawing
-        const canvas = document.getElementById('signatureCanvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
-
-        if (canvas) {
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-
-            // Touch support
-            canvas.addEventListener('touchstart', handleTouch);
-            canvas.addEventListener('touchmove', handleTouch);
-            canvas.addEventListener('touchend', stopDrawing);
-        }
-
-        function startDrawing(e) {
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            lastX = e.clientX - rect.left;
-            lastY = e.clientY - rect.top;
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-
-            lastX = x;
-            lastY = y;
-
-            // Update hidden input with canvas data
-            document.getElementById('signature_data').value = canvas.toDataURL('image/png');
-        }
-
-        function handleTouch(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            canvas.dispatchEvent(mouseEvent);
-        }
-
-        function stopDrawing() {
-            isDrawing = false;
-        }
-
-        function clearSignature() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('signature_data').value = '';
-        }
-
-        function formatIban(input) {
-            // Remove all non-alphanumeric characters
-            let value = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-            
-            // Add space every 4 characters
-            let formatted = '';
-            for (let i = 0; i < value.length; i++) {
-                if (i > 0 && i % 4 === 0) {
-                    formatted += ' ';
-                }
-                formatted += value[i];
-            }
-            
-            input.value = formatted;
-        }
-
-        function toggleDirectDebit() {
-            const directDebit = document.querySelector('input[name="payment_method"][value="direct_debit"]').checked;
-            const fields = document.getElementById('directDebitFields');
-            
-            if (directDebit) {
-                fields.classList.add('active');
-                // Make fields required
-                document.getElementById('iban').required = true;
-                document.getElementById('account_holder_name').required = true;
-                document.getElementById('mandate_date').required = true;
-            } else {
-                fields.classList.remove('active');
-                // Make fields optional
-                document.getElementById('iban').required = false;
-                document.getElementById('account_holder_name').required = false;
-                document.getElementById('mandate_date').required = false;
-            }
-        }
-
-        // Initialize on page load
-        toggleDirectDebit();
-
-        // Form submission check
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const directDebit = document.querySelector('input[name="payment_method"][value="direct_debit"]').checked;
-            if (directDebit) {
-                const signatureData = document.getElementById('signature_data').value;
-                if (!signatureData) {
-                    e.preventDefault();
-                    alert('Handtekening is verplicht voor automatisch incasso. Teken uw handtekening alstublieft.');
-                }
-            }
-        });
-    </script>
+<script src="../js/signature.js"></script>
