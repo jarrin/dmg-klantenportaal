@@ -90,7 +90,7 @@ class Product {
     public function activateProduct($id) {
     $stmt = $this->db->prepare("UPDATE products SET status = 'active' WHERE id = ?");
     return $stmt->execute([$id]);
-}
+    }
 
     
     public function getProductTypes() {
