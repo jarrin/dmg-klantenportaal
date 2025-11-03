@@ -1,0 +1,369 @@
+/**
+ * Custom styles for portal features
+ * Consolidates inline styles from various pages
+ */
+
+/* Product Search */
+.product-search-box {
+    margin-bottom: 20px;
+}
+
+.product-search-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.product-search-box input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+/* Request Product Form */
+.product-type-info {
+    display: none;
+    color: #666;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+.duration-info {
+    display: none;
+    background: #f0f9ff;
+    padding: 10px;
+    border-radius: 4px;
+    border-left: 4px solid #0066cc;
+    margin: 15px 0;
+}
+
+.duration-info strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Confirmation Modal Styles */
+.confirm-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.confirm-modal.active {
+    display: block;
+}
+
+.confirm-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+    animation: slideIn 0.3s ease;
+}
+
+.confirm-modal-header {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 20px;
+}
+
+.confirm-modal-body {
+    margin: 20px 0;
+    color: #666;
+    line-height: 1.5;
+}
+
+.confirm-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+.confirm-modal.danger .confirm-modal-header {
+    color: #d32f2f;
+}
+
+.confirm-modal.danger .confirm-btn-confirm {
+    background-color: #d32f2f;
+    border-color: #d32f2f;
+}
+
+.confirm-modal.danger .confirm-btn-confirm:hover {
+    background-color: #b71c1c;
+    border-color: #b71c1c;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -55%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+}
+
+/* Payment Preferences */
+.payment-method-info {
+    background: #f0f9ff;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.payment-method-info.margin-left {
+    margin-left: 25px;
+    margin-top: 10px;
+}
+
+.direct-debit-fields {
+    display: none;
+    background: var(--light-color);
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.direct-debit-fields.active {
+    display: block;
+}
+
+.signature-canvas-wrapper {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#signatureCanvas {
+    border: 2px solid #333;
+    display: block;
+    background: white;
+    cursor: crosshair;
+    margin-bottom: 10px;
+}
+
+.signature-current {
+    margin-bottom: 10px;
+}
+
+.signature-current img {
+    max-width: 200px;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+.signature-current p {
+    font-size: 12px;
+    color: #999;
+    margin: 5px 0 10px 0;
+}
+
+/* Admin Ticket Detail */
+.ticket-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    margin-bottom: 20px;
+}
+
+.ticket-messages {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--border-color);
+}
+
+.message.staff-reply {
+    background: #f0f9ff;
+    border-left-color: var(--primary-color);
+}
+
+.message.customer-message {
+    background: var(--light-color);
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.message-author {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.message-date {
+    color: var(--secondary-color);
+}
+
+.message-body {
+    line-height: 1.6;
+}
+
+/* Status/Priority Dropdown Selects */
+select[class*="badge"] {
+    cursor: pointer;
+    background-color: transparent;
+    font-weight: 600;
+}
+
+select[class*="badge"]:hover {
+    opacity: 0.8;
+}
+
+/* Form Selects in Cards */
+.stat-card select {
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.stat-card form {
+    display: inline;
+}
+
+/* Welcome Section Styling */
+.welcome-section {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0;
+}
+
+.welcome-text h2 {
+    margin: 0;
+}
+
+.welcome-subtitle {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Utility Classes */
+.margin-bottom-20 {
+    margin-bottom: 20px;
+}
+
+.margin-top-5 {
+    margin-top: 5px;
+}
+
+.display-none {
+    display: none;
+}
+
+.display-block {
+    display: block;
+}
+
+.color-gray-600 {
+    color: #666;
+}
+
+.color-gray-900 {
+    color: #999;
+}
+
+.font-size-12 {
+    font-size: 12px;
+}
+
+.font-size-13 {
+    font-size: 13px;
+}
+
+.font-size-14 {
+    font-size: 14px;
+}
+
+.font-size-16 {
+    font-size: 16px;
+}
+
+.font-size-18 {
+    font-size: 18px;
+}
+
+.font-size-20 {
+    font-size: 20px;
+}
+
+.font-weight-600 {
+    font-weight: 600;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.inline-form {
+    display: inline;
+}
+
+/* Layout utilities */
+.section-max-width {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Payment preferences */
+.payment-method-info {
+    margin-left: 25px;
+    margin-top: 10px;
+}

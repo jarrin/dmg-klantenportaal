@@ -16,7 +16,9 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subject = trim($_POST['subject'] ?? '');
     $message = trim($_POST['message'] ?? '');
-    $priority = $_POST['priority'] ?? 'medium';
+    
+    // Customer tickets have default priority, no user input
+    $priority = 'medium';
     
     if (empty($subject) || empty($message)) {
         $error = 'Vul alle verplichte velden in';
@@ -61,16 +63,6 @@ $pageTitle = 'Tickets - ' . APP_NAME;
                     <div class="form-group">
                         <label for="subject">Onderwerp *</label>
                         <input type="text" id="subject" name="subject" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="priority">Prioriteit</label>
-                        <select id="priority" name="priority">
-                            <option value="low">Laag</option>
-                            <option value="medium" selected>Normaal</option>
-                            <option value="high">Hoog</option>
-                            <option value="urgent">Urgent</option>
-                        </select>
                     </div>
                     
                     <div class="form-group">

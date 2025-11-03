@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Validator.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
@@ -27,28 +28,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $city = trim($_POST['city'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
         
+        // Validate required fields first
         if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) {
             $error = 'Vul alle verplichte velden in';
-        } elseif ($userModel->emailExists($email)) {
-            $error = 'Dit e-mailadres is al in gebruik';
         } else {
-            $data = [
+            // Prepare data for validation
+            $validateData = [
                 'email' => $email,
-                'password' => $auth->hashPassword($password),
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'company_name' => $companyName,
                 'address' => $address,
                 'postal_code' => $postalCode,
                 'city' => $city,
-                'phone' => $phone,
-                'role' => 'customer'
+                'phone' => $phone
             ];
             
-            if ($userModel->create($data)) {
-                $success = 'Gebruiker succesvol aangemaakt';
+            // Run validation
+            if (!Validator::validateUser($validateData, false)) {
+                $error = Validator::getFirstError();
+            } elseif ($userModel->emailExists($email)) {
+                $error = 'Dit e-mailadres is al in gebruik';
             } else {
-                $error = 'Er is een fout opgetreden bij het aanmaken van de gebruiker';
+                $data = [
+                    'email' => $email,
+                    'password' => $auth->hashPassword($password),
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'company_name' => $companyName,
+                    'address' => $address,
+                    'postal_code' => $postalCode,
+                    'city' => $city,
+                    'phone' => $phone,
+                    'role' => 'customer'
+                ];
+                
+                if ($userModel->create($data)) {
+                    $success = 'Gebruiker succesvol aangemaakt';
+                } else {
+                    $error = 'Er is een fout opgetreden bij het aanmaken van de gebruiker';
+                }
             }
         }
     } elseif ($action === 'delete') {

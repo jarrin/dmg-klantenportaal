@@ -54,49 +54,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $error = 'Er is een fout opgetreden bij het bijwerken van de status';
         }
+    } elseif ($action === 'update_priority') {
+        $priority = $_POST['priority'] ?? '';
+        
+        // Validate priority value
+        if (!in_array($priority, ['low', 'medium', 'high', 'urgent'])) {
+            $error = 'Ongeldige prioriteit';
+        } else {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("UPDATE tickets SET priority = ? WHERE id = ?");
+            if ($stmt->execute([$priority, $ticketId])) {
+                $success = 'Prioriteit bijgewerkt';
+                $ticket = $ticketModel->getById($ticketId);
+            } else {
+                $error = 'Er is een fout opgetreden bij het bijwerken van de prioriteit';
+            }
+        }
     }
 }
 $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
-
-<style>
-    .ticket-messages {
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-    .message {
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        border-left: 4px solid var(--border-color);
-    }
-    .message.staff-reply {
-        background: #f0f9ff;
-        border-left-color: var(--primary-color);
-    }
-    .message.customer-message {
-        background: var(--light-color);
-        }
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        .message-author {
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-        .message-date {
-            color: var(--secondary-color);
-        }
-    .message-body {
-        line-height: 1.6;
-    }
-</style>
 
 <div class="container">
         <div class="page-header">
@@ -115,10 +93,9 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
             <div class="stat-card">
                 <p>Status</p>
                 <h3>
-                    <form method="POST" style="display: inline;">
+                    <form method="POST" class="inline-form">
                         <input type="hidden" name="action" value="update_status">
-                        <select name="status" onchange="this.form.submit()" class="badge badge-<?php echo $ticket['status']; ?>" 
-                                style="border: none; padding: 8px 12px; cursor: pointer; font-size: 14px;">
+                        <select name="status" onchange="this.form.submit()" class="badge badge-<?php echo $ticket['status']; ?>">
                             <option value="new" <?php echo $ticket['status'] === 'new' ? 'selected' : ''; ?>>Nieuw</option>
                             <option value="in_progress" <?php echo $ticket['status'] === 'in_progress' ? 'selected' : ''; ?>>In behandeling</option>
                             <option value="closed" <?php echo $ticket['status'] === 'closed' ? 'selected' : ''; ?>>Gesloten</option>
@@ -128,11 +105,21 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
             </div>
             <div class="stat-card">
                 <p>Prioriteit</p>
-                <h3><span class="badge badge-priority-<?php echo $ticket['priority']; ?>"><?php echo ucfirst($ticket['priority']); ?></span></h3>
+                <h3>
+                    <form method="POST" class="inline-form">
+                        <input type="hidden" name="action" value="update_priority">
+                        <select name="priority" onchange="this.form.submit()" class="badge badge-priority-<?php echo $ticket['priority']; ?>">
+                            <option value="low" <?php echo $ticket['priority'] === 'low' ? 'selected' : ''; ?>>Laag</option>
+                            <option value="medium" <?php echo $ticket['priority'] === 'medium' ? 'selected' : ''; ?>>Normaal</option>
+                            <option value="high" <?php echo $ticket['priority'] === 'high' ? 'selected' : ''; ?>>Hoog</option>
+                            <option value="urgent" <?php echo $ticket['priority'] === 'urgent' ? 'selected' : ''; ?>>Urgent</option>
+                        </select>
+                    </form>
+                </h3>
             </div>
             <div class="stat-card">
                 <p>Aangemaakt</p>
-                <h3 style="font-size: 16px;"><?php echo date('d-m-Y H:i', strtotime($ticket['created_at'])); ?></h3>
+                <h3 class="font-size-16"><?php echo date('d-m-Y H:i', strtotime($ticket['created_at'])); ?></h3>
             </div>
         </div>
         

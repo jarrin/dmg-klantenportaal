@@ -166,26 +166,6 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
 
 <?php include __DIR__ . '/../includes/header.php'; ?>
 
-<style>
-    .payment-method-info {
-        background: #f0f9ff;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        border-left: 4px solid var(--primary-color);
-        }
-        .direct-debit-fields {
-            display: none;
-            background: var(--light-color);
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 15px;
-        }
-        .direct-debit-fields.active {
-        display: block;
-    }
-</style>
-
 <div class="container">
     <div class="page-header">
         <h1>Betaalvoorkeuren</h1>
@@ -200,7 +180,7 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
             <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
-        <div class="dashboard-section" style="max-width: 800px; margin: 0 auto;">
+        <div class="dashboard-section section-max-width">
             <h2>Betaalmethode</h2>
             
             <form method="POST" action="" enctype="multipart/form-data">
@@ -211,7 +191,7 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                                onchange="toggleDirectDebit()">
                         <strong>Betalen via factuur</strong>
                     </label>
-                    <div class="payment-method-info" style="margin-left: 25px; margin-top: 10px;">
+                    <div class="payment-method-info">
                         U ontvangt maandelijks een factuur per e-mail met een betalingstermijn van 14 dagen.
                     </div>
                 </div>
@@ -223,7 +203,7 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                                onchange="toggleDirectDebit()">
                         <strong>Automatisch incasso</strong>
                     </label>
-                    <div class="payment-method-info" style="margin-left: 25px; margin-top: 10px;">
+                    <div class="payment-method-info payment-method-info.margin-left">
                         Het verschuldigde bedrag wordt automatisch van uw rekening afgeschreven. 
                         Hiervoor is een éénmalig mandaat vereist.
                     </div>
@@ -260,20 +240,19 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                     <div class="form-group">
                         <label for="signature">Handtekening *</label>
                         <?php if ($preferences && $preferences['mandate_signature']): ?>
-                            <div style="margin-bottom: 10px;">
+                            <div class="signature-current">
                                 <img src="<?php echo htmlspecialchars($preferences['mandate_signature']); ?>" 
-                                     alt="Huidige handtekening" style="max-width: 200px; border: 1px solid #ddd; padding: 5px;">
-                                <p><small>Huidige handtekening</small></p>
+                                     alt="Huidige handtekening">
+                                <p>Huidige handtekening</p>
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('signaturePad').style.display='block';">
                                     Handtekening vervangen
                                 </button>
                             </div>
                         <?php endif; ?>
                         
-                        <div id="signaturePad" style="display: <?php echo ($preferences && $preferences['mandate_signature']) ? 'none' : 'block'; ?>; margin-top: 10px;">
+                        <div id="signaturePad" class="signature-canvas-wrapper <?php echo (!$preferences || !$preferences['mandate_signature']) ? 'display-block' : 'display-none'; ?>">
                             <p><strong>Teken uw handtekening hieronder:</strong></p>
-                            <canvas id="signatureCanvas" width="500" height="150" 
-                                    style="border: 2px solid #333; display: block; background: white; cursor: crosshair; margin-bottom: 10px;">
+                            <canvas id="signatureCanvas" width="500" height="150">
                                 Je browser ondersteunt het canvas element niet.
                             </canvas>
                             <div>

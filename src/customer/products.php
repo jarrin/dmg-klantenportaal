@@ -20,12 +20,18 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
         <a href="/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
     </div>
     
+    <?php if (!empty($products)): ?>
+        <div class="product-search-box">
+            <input type="text" id="productSearch" placeholder="Zoeken op productnaam, domeinnaam of type...">
+        </div>
+    <?php endif; ?>
+    
     <?php if (empty($products)): ?>
             <div class="alert alert-info">
                 U heeft momenteel geen producten. Klik op "Nieuw product aanvragen" om een product aan te vragen.
             </div>
         <?php else: ?>
-            <div class="products-grid">
+            <div class="products-grid" id="productsContainer">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
                         <div class="product-header">
@@ -79,7 +85,7 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
                             <div class="product-actions">
                                 <a href="/customer/cancel-product.php?id=<?php echo $product['id']; ?>" 
                                    class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Weet u zeker dat u dit product wilt opzeggen?')">
+                                   onclick="return openConfirmModal('Opzeggen product', 'Weet u zeker dat u dit product wilt opzeggen?', '/customer/cancel-product.php?id=<?php echo $product['id']; ?>')">
                                     Opzeggen
                                 </a>
                             </div>
@@ -89,5 +95,27 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
     </div>
 <?php endif; ?>
 </div>
+
+<script>
+    // Product search/filter
+    const productSearch = document.getElementById('productSearch');
+    if (productSearch) {
+        productSearch.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const products = document.querySelectorAll('.product-card');
+            
+            products.forEach(product => {
+                const name = product.querySelector('h3').textContent.toLowerCase();
+                const type = product.textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || type.includes(searchTerm)) {
+                    product.style.display = '';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        });
+    }
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

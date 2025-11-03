@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Validator.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
@@ -30,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($data['first_name']) || empty($data['last_name'])) {
             $error = 'Voornaam en achternaam zijn verplicht';
+        } elseif (!Validator::validateUser($data, true)) {
+            $error = Validator::getFirstError();
         } else {
             if ($userModel->update($userId, $data)) {
                 $success = 'Profiel succesvol bijgewerkt';
