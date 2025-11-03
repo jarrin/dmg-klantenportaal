@@ -163,11 +163,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle extend action from URL
+// Handle extend action from URL (support optional months param)
 if (isset($_GET['extend'])) {
     $productId = $_GET['extend'];
-    if ($productModel->extendProduct($productId, 12)) {
-        $success = 'Product succesvol verlengd met 12 maanden';
+    $months = isset($_GET['months']) ? (int)$_GET['months'] : 12;
+    if ($productModel->extendProduct($productId, $months)) {
+        $success = 'Product succesvol verlengd met ' . $months . ' maanden';
     }
 }
 
@@ -330,7 +331,12 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="extend">
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                        <input type="hidden" name="months" value="12">
+                                        <select name="months" class="form-control form-control-sm" style="display:inline-block;width:auto;margin-right:6px;">
+                                            <option value="3">3 maanden</option>
+                                            <option value="6">6 maanden</option>
+                                            <option value="12" selected>12 maanden</option>
+                                            <option value="24">24 maanden</option>
+                                        </select>
                                         <button type="submit" class="btn btn-sm btn-primary">Verlengen</button>
                                     </form>
                                     <form method="POST" style="display: inline;">
