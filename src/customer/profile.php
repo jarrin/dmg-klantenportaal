@@ -143,18 +143,18 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="change_password">
                     
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="current_password">Huidig wachtwoord *</label>
                         <input type="password" id="current_password" name="current_password" required>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="new_password">Nieuw wachtwoord *</label>
                         <input type="password" id="new_password" name="new_password" required>
                         <small>Minimaal 6 tekens</small>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="confirm_password">Bevestig nieuw wachtwoord *</label>
                         <input type="password" id="confirm_password" name="confirm_password" required>
                     </div>
