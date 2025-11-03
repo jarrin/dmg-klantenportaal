@@ -3,6 +3,57 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 
+/**
+ * Validate IBAN format
+ */
+function isValidIban($iban) {
+    // Remove spaces and convert to uppercase
+    $iban = strtoupper(str_replace(' ', '', $iban));
+    
+    // Check basic format (2 letters + 2 digits + alphanumeric)
+    if (!preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/', $iban)) {
+        return false;
+    }
+    
+    // Check length for common countries
+    $ibanLengths = [
+        'AD' => 24, 'AE' => 23, 'AL' => 28, 'AT' => 20, 'AZ' => 28, 'BA' => 20, 'BE' => 12,
+        'BG' => 22, 'BH' => 22, 'BR' => 29, 'BY' => 28, 'CH' => 21, 'CR' => 22, 'CY' => 28,
+        'CZ' => 24, 'DE' => 22, 'DK' => 18, 'DO' => 28, 'EE' => 20, 'EG' => 29, 'ES' => 24,
+        'FI' => 18, 'FO' => 18, 'FR' => 27, 'GB' => 22, 'GE' => 22, 'GI' => 23, 'GL' => 18,
+        'GR' => 27, 'GT' => 28, 'HR' => 21, 'HU' => 28, 'IE' => 22, 'IL' => 23, 'IS' => 26,
+        'IT' => 27, 'JO' => 30, 'KW' => 30, 'KZ' => 20, 'LB' => 28, 'LC' => 32, 'LI' => 21,
+        'LT' => 20, 'LU' => 20, 'LV' => 21, 'MC' => 27, 'MD' => 24, 'ME' => 22, 'MK' => 19,
+        'MR' => 27, 'MT' => 31, 'MU' => 30, 'NL' => 18, 'NO' => 15, 'PK' => 24, 'PL' => 28,
+        'PS' => 29, 'PT' => 25, 'QA' => 29, 'RO' => 24, 'RS' => 22, 'SA' => 24, 'SE' => 24,
+        'SI' => 19, 'SK' => 24, 'SM' => 27, 'TN' => 24, 'TR' => 26, 'UA' => 29, 'VA' => 22,
+        'VG' => 24, 'XK' => 20
+    ];
+    
+    $country = substr($iban, 0, 2);
+    
+    if (isset($ibanLengths[$country]) && strlen($iban) !== $ibanLengths[$country]) {
+        return false;
+    }
+    
+    // Perform mod-97 check
+    $rearranged = substr($iban, 4) . substr($iban, 0, 4);
+    $numeric = '';
+    
+    for ($i = 0; $i < strlen($rearranged); $i++) {
+        $char = $rearranged[$i];
+        if (ctype_digit($char)) {
+            $numeric .= $char;
+        } else {
+            // Convert letter to number (A=10, B=11, ..., Z=35)
+            $numeric .= (ord($char) - ord('A') + 10);
+        }
+    }
+    
+    // Check using modulo 97
+    return (int)bcmod($numeric, '97') == 1;
+}
+
 $auth = new Auth();
 $auth->requireCustomer();
 
@@ -19,31 +70,34 @@ $preferences = $stmt->fetch();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $paymentMethod = $_POST['payment_method'] ?? 'invoice';
-    $iban = trim($_POST['iban'] ?? '');
+    $iban = strtoupper(str_replace([' ', '-'], '', trim($_POST['iban'] ?? '')));
     $accountHolder = trim($_POST['account_holder_name'] ?? '');
     $mandateDate = $_POST['mandate_date'] ?? null;
     
-    // Handle signature upload
+    // Handle signature data
     $signaturePath = $preferences['mandate_signature'] ?? null;
     
-    if (isset($_FILES['signature']) && $_FILES['signature']['error'] === UPLOAD_ERR_OK) {
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-        $fileType = $_FILES['signature']['type'];
+    if (!empty($_POST['signature_data'])) {
+        // Canvas-based signature
+        $imageData = $_POST['signature_data'];
         
-        if (in_array($fileType, $allowedTypes) && $_FILES['signature']['size'] <= MAX_UPLOAD_SIZE) {
-            $extension = pathinfo($_FILES['signature']['name'], PATHINFO_EXTENSION);
-            $filename = 'signature_' . $userId . '_' . time() . '.' . $extension;
-            $uploadPath = UPLOAD_PATH . '/signatures/';
+        // Validate and decode base64
+        if (preg_match('/^data:image\/png;base64,/', $imageData)) {
+            $imageData = substr($imageData, 22); // Remove the data:image/png;base64, prefix
+            $imageData = base64_decode($imageData);
             
-            if (!is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
+            if ($imageData) {
+                $filename = 'signature_' . $userId . '_' . time() . '.png';
+                $uploadPath = UPLOAD_PATH . '/signatures/';
+                
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                if (file_put_contents($uploadPath . $filename, $imageData)) {
+                    $signaturePath = '/uploads/signatures/' . $filename;
+                }
             }
-            
-            if (move_uploaded_file($_FILES['signature']['tmp_name'], $uploadPath . $filename)) {
-                $signaturePath = '/uploads/signatures/' . $filename;
-            }
-        } else {
-            $error = 'Ongeldige handtekening. Gebruik een JPG of PNG bestand (max 5MB)';
         }
     }
     
@@ -51,7 +105,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validate direct debit requirements
         if ($paymentMethod === 'direct_debit') {
             if (empty($iban) || empty($accountHolder) || empty($mandateDate)) {
-                $error = 'Voor automatisch incasso zijn IBAN, naam rekeninghouder en mandaatdatum verplicht';
+                $error = 'Voor automatisch incasso zijn IBAN, naam rekeninghouder, mandaatdatum en handtekening verplicht';
+            } elseif (!isValidIban($iban)) {
+                $error = 'Het IBAN-nummer is ongeldig. Controleer het formaat.';
+            } elseif (empty($signaturePath)) {
+                $error = 'Handtekening is verplicht voor automatisch incasso';
             }
         }
         
@@ -178,11 +236,11 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                     <div class="form-group">
                         <label for="iban">IBAN-nummer *</label>
                         <input type="text" id="iban" name="iban" 
-                               value="<?php echo htmlspecialchars($preferences['iban'] ?? ''); ?>"
-                               placeholder="NL00 BANK 0123 4567 89"
-                               pattern="[A-Z]{2}[0-9]{2}[A-Z0-9]+"
-                               maxlength="34">
-                        <small>Formaat: NL00 BANK 0123 4567 89</small>
+                               value="<?php echo htmlspecialchars(($preferences['iban'] ?? '') ? str_replace(' ', '', $preferences['iban']) : ''); ?>"
+                               placeholder="NL91 ABNA 0417 1643 00"
+                               maxlength="34"
+                               oninput="formatIban(this)">
+                        <small>Formaat: bijvoorbeeld NL91ABNA0417164300 (spaties worden automatisch toegevoegd)</small>
                     </div>
                     
                     <div class="form-group">
@@ -206,10 +264,25 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                                 <img src="<?php echo htmlspecialchars($preferences['mandate_signature']); ?>" 
                                      alt="Huidige handtekening" style="max-width: 200px; border: 1px solid #ddd; padding: 5px;">
                                 <p><small>Huidige handtekening</small></p>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('signaturePad').style.display='block';">
+                                    Handtekening vervangen
+                                </button>
                             </div>
                         <?php endif; ?>
-                        <input type="file" id="signature" name="signature" accept="image/jpeg,image/png,image/jpg">
-                        <small>Upload een afbeelding van uw handtekening (JPG/PNG, max 5MB)</small>
+                        
+                        <div id="signaturePad" style="display: <?php echo ($preferences && $preferences['mandate_signature']) ? 'none' : 'block'; ?>; margin-top: 10px;">
+                            <p><strong>Teken uw handtekening hieronder:</strong></p>
+                            <canvas id="signatureCanvas" width="500" height="150" 
+                                    style="border: 2px solid #333; display: block; background: white; cursor: crosshair; margin-bottom: 10px;">
+                                Je browser ondersteunt het canvas element niet.
+                            </canvas>
+                            <div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="clearSignature()">
+                                    Wissen
+                                </button>
+                            </div>
+                            <input type="hidden" id="signature_data" name="signature_data" value="">
+                        </div>
                     </div>
                     
                     <div class="alert alert-info">
@@ -226,6 +299,91 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
 </div>
     
     <script>
+        // Canvas signature drawing
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        if (canvas) {
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // Touch support
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+
+            lastX = x;
+            lastY = y;
+
+            // Update hidden input with canvas data
+            document.getElementById('signature_data').value = canvas.toDataURL('image/png');
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('signature_data').value = '';
+        }
+
+        function formatIban(input) {
+            // Remove all non-alphanumeric characters
+            let value = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            
+            // Add space every 4 characters
+            let formatted = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += ' ';
+                }
+                formatted += value[i];
+            }
+            
+            input.value = formatted;
+        }
+
         function toggleDirectDebit() {
             const directDebit = document.querySelector('input[name="payment_method"][value="direct_debit"]').checked;
             const fields = document.getElementById('directDebitFields');
@@ -244,7 +402,19 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                 document.getElementById('mandate_date').required = false;
             }
         }
-        
+
         // Initialize on page load
         toggleDirectDebit();
+
+        // Form submission check
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const directDebit = document.querySelector('input[name="payment_method"][value="direct_debit"]').checked;
+            if (directDebit) {
+                const signatureData = document.getElementById('signature_data').value;
+                if (!signatureData) {
+                    e.preventDefault();
+                    alert('Handtekening is verplicht voor automatisch incasso. Teken uw handtekening alstublieft.');
+                }
+            }
+        });
     </script>

@@ -1,7 +1,18 @@
 -- Database initialization script for DMG Klantportaal
 
+-- Drop existing tables to ensure clean slate
+DROP TABLE IF EXISTS cancellation_requests;
+DROP TABLE IF EXISTS product_requests;
+DROP TABLE IF EXISTS chat_messages;
+DROP TABLE IF EXISTS ticket_messages;
+DROP TABLE IF EXISTS tickets;
+DROP TABLE IF EXISTS payment_preferences;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS product_types;
+DROP TABLE IF EXISTS users;
+
 -- Create users table
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -23,7 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create product types table
-CREATE TABLE IF NOT EXISTS product_types (
+CREATE TABLE product_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
@@ -32,7 +43,7 @@ CREATE TABLE IF NOT EXISTS product_types (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create products table
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     product_type_id INT NOT NULL,
@@ -54,7 +65,7 @@ CREATE TABLE IF NOT EXISTS products (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create payment preferences table
-CREATE TABLE IF NOT EXISTS payment_preferences (
+CREATE TABLE payment_preferences (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     payment_method ENUM('invoice', 'direct_debit') NOT NULL DEFAULT 'invoice',
@@ -69,7 +80,7 @@ CREATE TABLE IF NOT EXISTS payment_preferences (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create tickets table
-CREATE TABLE IF NOT EXISTS tickets (
+CREATE TABLE tickets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     subject VARCHAR(255) NOT NULL,
@@ -85,7 +96,7 @@ CREATE TABLE IF NOT EXISTS tickets (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create ticket messages table
-CREATE TABLE IF NOT EXISTS ticket_messages (
+CREATE TABLE ticket_messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ticket_id INT NOT NULL,
     user_id INT NOT NULL,
@@ -99,7 +110,7 @@ CREATE TABLE IF NOT EXISTS ticket_messages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create chat messages table
-CREATE TABLE IF NOT EXISTS chat_messages (
+CREATE TABLE chat_messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     message TEXT NOT NULL,
@@ -113,7 +124,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create product requests table
-CREATE TABLE IF NOT EXISTS product_requests (
+CREATE TABLE product_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     product_type_id INT NOT NULL,
@@ -132,7 +143,7 @@ CREATE TABLE IF NOT EXISTS product_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create cancellation requests table
-CREATE TABLE IF NOT EXISTS cancellation_requests (
+CREATE TABLE cancellation_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     product_id INT NOT NULL,
@@ -158,11 +169,11 @@ INSERT INTO product_types (name, description, default_duration_months) VALUES
 
 -- Insert default admin user (password: admin123 - MUST BE CHANGED IN PRODUCTION!)
 INSERT INTO users (email, password, first_name, last_name, role) VALUES
-UPDATE users SET password = '$2y$10$GofcEn.3KMQ9p.mqYGqEGOezkn0GvRA.2Pk4eVTKchG/rv3MhRN7S' WHERE email = 'admin@dmg.nl';
+('admin@dmg.nl', '$2y$10$GofcEn.3KMQ9p.mqYGqEGOezkn0GvRA.2Pk4eVTKchG/rv3MhRN7S', 'Admin', 'User', 'admin');
 
 -- Insert demo customer user (password: customer123)
 INSERT INTO users (email, password, first_name, last_name, company_name, address, postal_code, city, role) VALUES
-UPDATE users SET password = '$2y$10$nZj0U6gQE/epkECbDeo2kOkjfYbeIn00M6R3vT.t/bTZgwIIR7Cnu' WHERE email = 'demo@example.com';
+('demo@example.com', '$2y$10$nZj0U6gQE/epkECbDeo2kOkjfYbeIn00M6R3vT.t/bTZgwIIR7Cnu', 'Demo', 'Customer', 'Demo Company', 'Demostraat 1', '1234 AB', 'Amsterdam', 'customer');
 
 -- Insert demo products
 INSERT INTO products (user_id, product_type_id, name, description, domain_name, registration_date, expiry_date, price, status) VALUES
