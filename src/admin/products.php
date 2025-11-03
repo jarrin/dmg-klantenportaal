@@ -331,7 +331,8 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="extend">
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                        <select name="months" class="form-control form-control-sm" style="display:inline-block;width:auto;margin-right:6px;">
+                                        <select name="months" class="btn btn-sm btn-primary">
+                                            <option value="1">1 maand</option>
                                             <option value="3">3 maanden</option>
                                             <option value="6">6 maanden</option>
                                             <option value="12" selected>12 maanden</option>
@@ -344,17 +345,24 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                         <button type="submit" class="btn btn-sm btn-secondary">Opzeggen</button>
                                     </form>
-                                <?php endif; ?>
-                                <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u dit product wilt verwijderen?')">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                                                        <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u dit product wilt verwijderen?')">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                     <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
                                 </form>
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="action" value="cancel">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-secondary">Activieren</button>
-                                </form>
+                                <?php endif; ?>
+                                <?php if ($product['status'] !== 'active'): ?>
+                                    <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u dit product wilt verwijderen?')">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                    <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
+                                    </form>
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action" value="cancel">
+                                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                        <button type="submit" class="btn btn-sm btn-secondary">Activieren</button>
+                                    </form>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
