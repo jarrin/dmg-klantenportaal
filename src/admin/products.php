@@ -331,7 +331,8 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="extend">
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                        <select name="months" class="form-control form-control-sm" style="display:inline-block;width:auto;margin-right:6px;">
+                                        <select name="months" class="btn btn-sm btn-primary">
+                                            <option value="1">1 maand</option>
                                             <option value="3">3 maanden</option>
                                             <option value="6">6 maanden</option>
                                             <option value="12" selected>12 maanden</option>
