@@ -164,7 +164,7 @@ body {
 /* Left Section - Info (2/3) */
 .login-info-section {
     flex: 2;
-    background: var(--primary-color);
+    background: var(--primary-dark);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -181,6 +181,9 @@ body {
 }
 
 .brand-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: var(--spacing-3xl);
 }
 
@@ -216,13 +219,13 @@ body {
     padding: var(--spacing-lg);
     border-radius: var(--radius-md);
     transition: var(--transition-base);
-    border: 1px solid var(--bg-glass);
+    border: 1px solid var(--border-color);
 }
 
 .feature-icon {
     width: 50px;
     height: 50px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--primary-color);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
