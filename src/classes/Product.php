@@ -86,6 +86,8 @@ class Product {
         $stmt = $this->db->prepare("DELETE FROM products WHERE id = ?");
         return $stmt->execute([$id]);
     }
+
+    
     
     public function getProductTypes() {
         $stmt = $this->db->query("SELECT * FROM product_types ORDER BY name");
