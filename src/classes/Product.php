@@ -115,15 +115,15 @@ class Product {
     
     public function getExpiringProducts($days = 30) {
         $stmt = $this->db->prepare("
-            SELECT p.*, pt.name as type_name, u.email, u.first_name, u.last_name
+            SELECT p.*, DATEDIFF(p.expiry_date, CURDATE()) AS days_left, pt.name as type_name, u.email, u.first_name, u.last_name
             FROM products p
             JOIN product_types pt ON p.product_type_id = pt.id
             JOIN users u ON p.user_id = u.id
-            WHERE p.status = 'active' 
-            AND p.expiry_date <= DATE_ADD(CURDATE(), INTERVAL ? DAY)
+            WHERE p.status = 'active'
+            AND DATEDIFF(p.expiry_date, CURDATE()) BETWEEN 0 AND ?
             ORDER BY p.expiry_date ASC
         ");
-        $stmt->execute([$days]);
+        $stmt->execute([(int)$days]);
         return $stmt->fetchAll();
     }
 }
