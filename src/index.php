@@ -24,12 +24,12 @@ $debug = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
-    
+
     // Debug info (remove in production)
     if (ENVIRONMENT === 'development') {
         $debug = "Attempting login with email: $email<br>";
     }
-    
+
     if ($auth->login($email, $password)) {
         if ($auth->isAdmin()) {
             header('Location: /admin/dashboard.php');
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     } else {
         $error = 'Ongeldige inloggegevens';
-        
+
         // Additional debug info
         if (ENVIRONMENT === 'development') {
             try {
@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="login-page">
     <div class="login-split-layout">
         <!-- Left Side - Info Section (2/3) -->
@@ -80,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h1 class="brand-title"><?php echo APP_NAME; ?></h1>
                     <p class="brand-tagline">Beheer uw diensten en ondersteuning op één plek</p>
                 </div>
-                
+
                 <div class="features-section">
                     <div class="feature-item">
                         <div class="feature-icon">
@@ -91,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p>Bekijk en beheer al uw actieve producten en diensten</p>
                         </div>
                     </div>
-                    
+
                     <div class="feature-item">
                         <div class="feature-icon">
                             <i class="fas fa-headset"></i>
@@ -101,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p>Meld problemen en volg de status van uw tickets</p>
                         </div>
                     </div>
-                    
+
                     <div class="feature-item">
                         <div class="feature-icon">
                             <i class="fas fa-shield-alt"></i>
@@ -114,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
         </div>
-        
+
         <!-- Right Side - Login Form (1/3) -->
         <div class="login-form-section">
             <div class="login-form-container">
@@ -122,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h2>Welkom terug</h2>
                     <p>Log in op uw account</p>
                 </div>
-                
+
                 <?php if ($error): ?>
                     <div class="alert alert-error">
                         <i class="fas fa-exclamation-circle"></i>
@@ -134,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                 <?php endif; ?>
-                
+
                 <form method="POST" action="" class="login-form">
                     <div class="form-group">
                         <label for="email">
@@ -143,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
                         <input type="email" id="email" name="email" placeholder="uw.email@voorbeeld.nl" required autofocus>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="password">
                             <i class="fas fa-lock"></i>
@@ -151,13 +153,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
                         <input type="password" id="password" name="password" placeholder="••••••••" required>
                     </div>
-                    
+
                     <button type="submit" class="btn btn-primary btn-block btn-login">
                         <span>Inloggen</span>
                         <i class="fas fa-arrow-right"></i>
                     </button>
                 </form>
-                
+
                 <div class="login-demo-info">
                     <div class="demo-header">
                         <i class="fas fa-info-circle"></i>
@@ -192,4 +194,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
+
 </html>
