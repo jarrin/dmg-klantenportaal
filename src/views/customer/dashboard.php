@@ -61,7 +61,7 @@ $pageTitle = 'Dashboard - ' . APP_NAME;
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <a href="/customer/products.php" class="btn btn-secondary">Alle producten</a>
+                <a href="/views/customer/products.php" class="btn btn-secondary">Alle producten</a>
             <?php endif; ?>
         </div>
         
@@ -88,7 +88,7 @@ $pageTitle = 'Dashboard - ' . APP_NAME;
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <a href="/customer/tickets.php" class="btn btn-secondary">Alle tickets</a>
+                <a href="/views/customer/tickets.php" class="btn btn-secondary">Alle tickets</a>
             <?php endif; ?>
         </div>
     </div>

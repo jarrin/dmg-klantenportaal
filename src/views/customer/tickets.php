@@ -32,7 +32,7 @@ $pageTitle = 'Tickets - ' . APP_NAME;
 <div class="container">
     <div class="page-header">
         <h1>Mijn Tickets</h1>
-        <button class="btn btn-primary" onclick="document.getElementById('newTicketForm').style.display='block'">
+        <button class="btn btn-primary" onclick="document.getElementById('newTicketForm').classList.remove('hidden')">
             Nieuw ticket
         </button>
     </div>
@@ -47,7 +47,7 @@ $pageTitle = 'Tickets - ' . APP_NAME;
 
     <div id="newTicketForm" class="form-modal hidden">
         <div class="modal-content">
-            <span class="close" onclick="document.getElementById('newTicketForm').style.display='none'">&times;</span>
+            <span class="close" onclick="document.getElementById('newTicketForm').classList.add('hidden')">&times;</span>
             <h2>Nieuw Ticket Aanmaken</h2>
             <form method="POST" action="">
                 <div class="form-group">
@@ -61,7 +61,7 @@ $pageTitle = 'Tickets - ' . APP_NAME;
                 </div>
 
                 <button type="submit" class="btn btn-primary">Ticket aanmaken</button>
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('newTicketForm').style.display='none'">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('newTicketForm').classList.add('hidden')">
                     Annuleren
                 </button>
             </form>
