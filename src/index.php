@@ -11,9 +11,9 @@ $auth = new Auth();
 // Auto-redirect based on login status
 if ($auth->isLoggedIn()) {
     if ($auth->isAdmin()) {
-        header('Location: /admin/dashboard.php');
+        header('Location: /views/admin/dashboard.php');
     } else {
-        header('Location: /customer/dashboard.php');
+        header('Location: /views/customer/dashboard.php');
     }
     exit;
 }
@@ -32,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($auth->login($email, $password)) {
         if ($auth->isAdmin()) {
-            header('Location: /admin/dashboard.php');
+            header('Location: views/admin/dashboard.php');
         } else {
-            header('Location: /customer/dashboard.php');
+            header('Location: views/customer/dashboard.php');
         }
         exit;
     } else {

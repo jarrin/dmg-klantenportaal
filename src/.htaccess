@@ -7,15 +7,39 @@ RewriteEngine On
 # Prevent directory listing
 Options -Indexes
 
-# Protect sensitive files
-<FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+# Protect sensitive files (dotfiles) - compatible with Apache 2.4 and 2.2
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
 
-# PHP security settings
-php_flag display_errors off
-php_flag log_errors on
+# PHP security settings - only apply when mod_php is available
+<IfModule mod_php7.c>
+    php_flag display_errors off
+    php_flag log_errors on
+</IfModule>
+<IfModule mod_php5.c>
+    php_flag display_errors off
+    php_flag log_errors on
+</IfModule>
+# If using PHP-FPM (php-fpm), set display_errors/log_errors in php.ini or .user.ini instead.
+
+# Ensure requests for non-existing files are handled by index.php so your app can serve views
+<IfModule mod_rewrite.c>
+    RewriteBase /
+
+    # If the requested file or directory does not exist, route to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
 
 # Custom error pages (optional)
 # ErrorDocument 404 /404.php

@@ -4,8 +4,16 @@ $isAdmin = ($_SESSION['user_role'] ?? '') === 'admin';
 $userName = $_SESSION['user_name'] ?? 'Gebruiker';
 $userEmail = $_SESSION['user_email'] ?? '';
 
-// Get current page for active state
-$currentPage = basename($_SERVER['PHP_SELF']);
+// Get current page for active state (safe fallback if REQUEST_URI is not set)
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
+
+function navActive($linkPath, $currentPath) {
+    // normalize paths and return 'active' if linkPath appears anywhere in currentPath
+    $cp = rtrim($currentPath, '/');
+    $lp = rtrim($linkPath, '/');
+    if ($lp === '') return '';
+    return strpos($cp, $lp) !== false ? 'active' : '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -28,40 +36,40 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             
             <nav class="sidebar-nav">
                 <?php if ($isAdmin): ?>
-                    <a href="/admin/dashboard.php" class="nav-item <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
+                    <a href="/views/admin/dashboard.php" class="nav-item <?php echo navActive('/admin/dashboard.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-chart-line"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
-                    <a href="/admin/users.php" class="nav-item <?php echo $currentPage === 'users.php' ? 'active' : ''; ?>">
+                    <a href="/views/admin/users.php" class="nav-item <?php echo navActive('/admin/users.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-users"></i>
                         <span class="nav-text">Gebruikers</span>
                     </a>
-                    <a href="/admin/products.php" class="nav-item <?php echo $currentPage === 'products.php' ? 'active' : ''; ?>">
+                    <a href="/views/admin/products.php" class="nav-item <?php echo navActive('/admin/products.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-box"></i>
                         <span class="nav-text">Producten</span>
                     </a>
-                    <a href="/admin/tickets.php" class="nav-item <?php echo $currentPage === 'tickets.php' ? 'active' : ''; ?>">
+                    <a href="/views/admin/tickets.php" class="nav-item <?php echo navActive('/admin/tickets.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-ticket-alt"></i>
                         <span class="nav-text">Tickets</span>
                     </a>
                 <?php else: ?>
-                    <a href="/customer/dashboard.php" class="nav-item <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
+                    <a href="/views/customer/dashboard.php" class="nav-item <?php echo navActive('/customer/dashboard.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-home"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
-                    <a href="/customer/products.php" class="nav-item <?php echo $currentPage === 'products.php' ? 'active' : ''; ?>">
+                    <a href="/views/customer/products.php" class="nav-item <?php echo navActive('/customer/products.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-box"></i>
                         <span class="nav-text">Mijn Producten</span>
                     </a>
-                    <a href="/customer/tickets.php" class="nav-item <?php echo $currentPage === 'tickets.php' ? 'active' : ''; ?>">
+                    <a href="/views/customer/tickets.php" class="nav-item <?php echo navActive('/customer/tickets.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-ticket-alt"></i>
                         <span class="nav-text">Tickets</span>
                     </a>
-                    <a href="/customer/payment-preferences.php" class="nav-item <?php echo $currentPage === 'payment-preferences.php' ? 'active' : ''; ?>">
+                    <a href="/views/customer/payment-preferences.php" class="nav-item <?php echo navActive('/customer/payment-preferences.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-credit-card"></i>
                         <span class="nav-text">Betalingen</span>
                     </a>
-                    <a href="/customer/profile.php" class="nav-item <?php echo $currentPage === 'profile.php' ? 'active' : ''; ?>">
+                    <a href="/views/customer/profile.php" class="nav-item <?php echo navActive('/customer/profile.php', $currentPath); ?>">
                         <i class="nav-icon fas fa-user"></i>
                         <span class="nav-text">Profiel</span>
                     </a>

@@ -4,7 +4,7 @@
             <h2><?php echo APP_NAME; ?> - Admin</h2>
         </div>
         <nav class="main-nav">
-            <a href="/admin/dashboard.php">Dashboard</a>
+            <a href="/views/admin/dashboard.php">Dashboard</a>
             <a href="/admin/users.php">Gebruikers</a>
             <a href="/admin/products.php">Producten</a>
             <a href="/admin/tickets.php">Tickets</a>

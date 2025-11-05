@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../controllers/customer/TicketDetailController.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../classes/Auth.php';
+require_once __DIR__ . '/../../controllers/customer/TicketDetailController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
@@ -40,7 +40,7 @@ if (isset($_GET['success'])) {
 
 $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 ?>
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../../includes/header.php'; ?>
 
 <div class="container">
     <div class="page-header">

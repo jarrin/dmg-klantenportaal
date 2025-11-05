@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../controllers/admin/ProductsController.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../classes/Auth.php';
+require_once __DIR__ . '/../../controllers/admin/ProductsController.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
@@ -20,7 +20,15 @@ extract($data);
 
 $pageTitle = 'Productbeheer - ' . APP_NAME;
 ?>
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../../includes/header.php'; ?>
+
+<?php
+// Defensive defaults in case controller didn't provide them (prevents undefined variable warnings)
+$page = $page ?? 1;
+$perPage = $perPage ?? 15;
+$requestsPage = $requestsPage ?? 1;
+$cancellationsPage = $cancellationsPage ?? 1;
+?>
 
 <div class="container">
     <div class="page-header">
@@ -30,12 +38,12 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
         </button>
     </div>
 
-    <?php if ($success): ?>
-        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+    <?php if (!empty($success)): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($success ?? ''); ?></div>
     <?php endif; ?>
 
-    <?php if ($error): ?>
-        <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
+    <?php if (!empty($error)): ?>
+        <div class="alert alert-error"><?php echo htmlspecialchars($error ?? ''); ?></div>
     <?php endif; ?>
 
     <!-- Pending Requests -->
@@ -58,9 +66,9 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                 <tbody>
                     <?php foreach ($pendingRequests as $request): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($request['first_name'] . ' ' . $request['last_name']); ?></td>
-                            <td><?php echo htmlspecialchars($request['requested_name']); ?></td>
-                            <td><?php echo htmlspecialchars($request['type_name']); ?></td>
+                            <td><?php echo htmlspecialchars(($request['first_name'] ?? '') . ' ' . ($request['last_name'] ?? '')); ?></td>
+                            <td><?php echo htmlspecialchars($request['requested_name'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($request['type_name'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($request['requested_domain'] ?? '-'); ?></td>
                             <td><?php echo date('d-m-Y', strtotime($request['created_at'])); ?></td>
                             <td>
@@ -111,9 +119,9 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                 <tbody>
                     <?php foreach ($pendingCancellations as $cancellation): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($cancellation['first_name'] . ' ' . $cancellation['last_name']); ?></td>
-                            <td><?php echo htmlspecialchars($cancellation['product_name']); ?></td>
-                            <td><?php echo htmlspecialchars(substr($cancellation['reason'], 0, 50)) . '...'; ?></td>
+                            <td><?php echo htmlspecialchars(($cancellation['first_name'] ?? '') . ' ' . ($cancellation['last_name'] ?? '')); ?></td>
+                            <td><?php echo htmlspecialchars($cancellation['product_name'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars(substr($cancellation['reason'] ?? '', 0, 50)) . '...'; ?></td>
                             <td><?php echo date('d-m-Y', strtotime($cancellation['created_at'])); ?></td>
                             <td>
                                 <form method="POST" style="display: inline;">
@@ -174,14 +182,14 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($products as $product): ?>
-                    <tr>
-                        <td><?php echo $product['id']; ?></td>
-                        <td><?php echo htmlspecialchars($product['first_name'] . ' ' . $product['last_name']); ?></td>
-                        <td><?php echo htmlspecialchars($product['name']); ?></td>
-                        <td><?php echo htmlspecialchars($product['type_name']); ?></td>
+                        <?php foreach ($products as $product): ?>
+                            <tr>
+                                <td><?php echo $product['id']; ?></td>
+                                <td><?php echo htmlspecialchars(($product['first_name'] ?? '') . ' ' . ($product['last_name'] ?? '')); ?></td>
+                                <td><?php echo htmlspecialchars($product['name'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($product['type_name'] ?? ''); ?></td>
                         <td><?php echo date('d-m-Y', strtotime($product['expiry_date'])); ?></td>
-                        <td>€<?php echo number_format($product['price'], 2, ',', '.'); ?></td>
+                                <td>€<?php echo number_format($product['price'] ?? 0, 2, ',', '.'); ?></td>
                         <td><span class="badge badge-<?php echo $product['status']; ?>"><?php echo ucfirst($product['status']); ?></span></td>
                         <td>
                             <?php if ($product['status'] === 'active'): ?>
@@ -251,7 +259,7 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                         <option value="">-- Selecteer een klant --</option>
                         <?php foreach ($users as $user): ?>
                             <option value="<?php echo $user['id']; ?>">
-                                <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name'] . ' (' . $user['email'] . ')'); ?>
+                                <?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '') . ' (' . ($user['email'] ?? '') . ')'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -263,7 +271,7 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                         <option value="">-- Selecteer een type --</option>
                         <?php foreach ($productTypes as $type): ?>
                             <option value="<?php echo $type['id']; ?>">
-                                <?php echo htmlspecialchars($type['name']); ?>
+                                <?php echo htmlspecialchars($type['name'] ?? ''); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -311,4 +319,4 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
     </div>
 </div>
 
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+<?php include __DIR__ . '/../../includes/footer.php'; ?>

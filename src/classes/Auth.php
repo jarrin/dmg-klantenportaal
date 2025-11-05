@@ -66,7 +66,7 @@ class Auth {
     public function requireAdmin() {
         $this->requireLogin();
         if (!$this->isAdmin()) {
-            header('Location: /customer/dashboard.php');
+            header('Location: /views/customer/dashboard.php');
             exit;
         }
     }
@@ -74,7 +74,7 @@ class Auth {
     public function requireCustomer() {
         $this->requireLogin();
         if (!$this->isCustomer()) {
-            header('Location: /admin/dashboard.php');
+            header('Location: /views/admin/dashboard.php');
             exit;
         }
     }

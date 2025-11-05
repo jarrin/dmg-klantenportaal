@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../controllers/customer/PaymentPreferencesController.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../classes/Auth.php';
+require_once __DIR__ . '/../../controllers/customer/PaymentPreferencesController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
@@ -22,12 +22,12 @@ $preferences = $result['preferences'] ?? $controller->getPreferences();
 $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
 ?>
 
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../../includes/header.php'; ?>
 
 <div class="container">
     <div class="page-header">
         <h1>Betaalvoorkeuren</h1>
-        <a href="/customer/dashboard.php" class="btn btn-secondary">Terug naar dashboard</a>
+        <a href="/views/customer/dashboard.php" class="btn btn-secondary">Terug naar dashboard</a>
     </div>
     
     <?php if ($success): ?>

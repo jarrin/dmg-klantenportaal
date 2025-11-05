@@ -4,7 +4,7 @@
             <h2><?php echo APP_NAME; ?></h2>
         </div>
         <nav class="main-nav">
-            <a href="/customer/dashboard.php">Dashboard</a>
+            <a href="/views/customer/dashboard.php">Dashboard</a>
             <a href="/customer/products.php">Producten</a>
             <a href="/customer/tickets.php">Tickets</a>
             <a href="/customer/payment-preferences.php">Betaling</a>
