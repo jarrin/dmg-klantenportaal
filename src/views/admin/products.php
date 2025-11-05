@@ -18,6 +18,11 @@ $error = $result['error'];
 $data = $controller->index();
 extract($data);
 
+// Get search parameters
+$searchRequests = trim($_GET['search_requests'] ?? '');
+$searchCancellations = trim($_GET['search_cancellations'] ?? '');
+$searchProducts = trim($_GET['search_products'] ?? '');
+
 $pageTitle = 'Productbeheer - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../../includes/header.php'; ?>
@@ -51,6 +56,14 @@ $cancellationsPage = $cancellationsPage ?? 1;
         <div class="table-container">
             <div class="table-header">
                 <h2>In behandeling: Product Aanvragen (<?php echo $requestsPaginator->getTotalItems(); ?>)</h2>
+                <input 
+                    type="text" 
+                    id="requestSearch" 
+                    class="search-box" 
+                    placeholder="Zoeken op naam..." 
+                    value="<?php echo htmlspecialchars($searchRequests); ?>"
+                    onkeyup="filterRows('request-row', this.value)"
+                >
             </div>
             <table class="data-table">
                 <thead>
@@ -65,7 +78,7 @@ $cancellationsPage = $cancellationsPage ?? 1;
                 </thead>
                 <tbody>
                     <?php foreach ($pendingRequests as $request): ?>
-                        <tr>
+                        <tr class="request-row" data-search="<?php echo strtolower(htmlspecialchars(($request['first_name'] ?? '') . ' ' . ($request['last_name'] ?? ''))); ?>">
                             <td><?php echo htmlspecialchars(($request['first_name'] ?? '') . ' ' . ($request['last_name'] ?? '')); ?></td>
                             <td><?php echo htmlspecialchars($request['requested_name'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($request['type_name'] ?? ''); ?></td>
@@ -105,6 +118,14 @@ $cancellationsPage = $cancellationsPage ?? 1;
         <div class="table-container">
             <div class="table-header">
                 <h2>In behandeling: Opzegverzoeken (<?php echo $cancellationsPaginator->getTotalItems(); ?>)</h2>
+                <input 
+                    type="text" 
+                    id="cancellationSearch" 
+                    class="search-box" 
+                    placeholder="Zoeken op naam of product..." 
+                    value="<?php echo htmlspecialchars($searchCancellations); ?>"
+                    onkeyup="filterRows('cancellation-row', this.value)"
+                >
             </div>
             <table class="data-table">
                 <thead>
@@ -118,7 +139,7 @@ $cancellationsPage = $cancellationsPage ?? 1;
                 </thead>
                 <tbody>
                     <?php foreach ($pendingCancellations as $cancellation): ?>
-                        <tr>
+                        <tr class="cancellation-row" data-search="<?php echo strtolower(htmlspecialchars(($cancellation['first_name'] ?? '') . ' ' . ($cancellation['last_name'] ?? '') . ' ' . ($cancellation['product_name'] ?? ''))); ?>">
                             <td><?php echo htmlspecialchars(($cancellation['first_name'] ?? '') . ' ' . ($cancellation['last_name'] ?? '')); ?></td>
                             <td><?php echo htmlspecialchars($cancellation['product_name'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars(substr($cancellation['reason'] ?? '', 0, 50)) . '...'; ?></td>
@@ -155,6 +176,14 @@ $cancellationsPage = $cancellationsPage ?? 1;
     <div class="table-container">
         <div class="table-header">
             <h2>Alle Producten (<?php echo $paginator->getTotalItems(); ?>)</h2>
+            <input 
+                type="text" 
+                id="productSearch" 
+                class="search-box" 
+                placeholder="Zoeken op naam of klant..." 
+                value="<?php echo htmlspecialchars($searchProducts); ?>"
+                onkeyup="filterRows('product-row', this.value)"
+            >
             <div class="table-actions">
                 <div class="per-page-selector">
                     <label>Toon:</label>
@@ -183,7 +212,7 @@ $cancellationsPage = $cancellationsPage ?? 1;
             </thead>
             <tbody>
                         <?php foreach ($products as $product): ?>
-                            <tr>
+                            <tr class="product-row" data-search="<?php echo strtolower(htmlspecialchars(($product['name'] ?? '') . ' ' . ($product['first_name'] ?? '') . ' ' . ($product['last_name'] ?? ''))); ?>">
                                 <td><?php echo $product['id']; ?></td>
                                 <td><?php echo htmlspecialchars(($product['first_name'] ?? '') . ' ' . ($product['last_name'] ?? '')); ?></td>
                                 <td><?php echo htmlspecialchars($product['name'] ?? ''); ?></td>
