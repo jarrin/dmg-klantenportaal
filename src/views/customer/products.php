@@ -93,9 +93,8 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
                         
                         <?php if ($product['status'] === 'active'): ?>
                             <div class="product-actions">
-                                <a href="/customer/cancel-product.php?id=<?php echo $product['id']; ?>" 
-                                   class="btn btn-danger btn-sm"
-                                   onclick="return openConfirmModal('Opzeggen product', 'Weet u zeker dat u dit product wilt opzeggen?', '/customer/cancel-product.php?id=<?php echo $product['id']; ?>')">
+                                <a href="/views/customer/cancel-product.php?id=<?php echo $product['id']; ?>" 
+                                   class="btn btn-danger btn-sm">
                                     Opzeggen
                                 </a>
                             </div>
@@ -107,15 +106,5 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
     <?php echo $paginator->render('products.php', ['per_page' => $perPage]); ?>
 <?php endif; ?>
 </div>
-
-<script>
-    // Confirmation modal for product cancellation
-    function openConfirmModal(title, message, url) {
-        if (confirm(message)) {
-            window.location.href = url;
-        }
-        return false;
-    }
-</script>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>
