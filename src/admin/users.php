@@ -14,6 +14,9 @@ $result = $controller->handlePost();
 $success = $result['success'];
 $error = $result['error'];
 
+// Get search parameter
+$search = trim($_GET['search'] ?? '');
+
 // Get page data
 $data = $controller->index();
 extract($data);
@@ -42,6 +45,14 @@ $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
         <div class="table-header">
             <h2>Gebruikers (<?php echo $paginator->getTotalItems(); ?>)</h2>
             <div class="table-actions">
+                <input 
+                    type="text" 
+                    id="userSearch" 
+                    class="search-box" 
+                    placeholder="Zoeken op naam of e-mail..." 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                    onkeyup="filterUsers()"
+                >
                 <div class="per-page-selector">
                     <label>Toon:</label>
                     <select onchange="window.location.href='?per_page='+this.value">
@@ -68,7 +79,7 @@ $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
         </thead>
         <tbody>
             <?php foreach ($users as $user): ?>
-                <tr>
+                <tr class="user-row" data-name="<?php echo strtolower(htmlspecialchars($user['first_name'] . ' ' . $user['last_name'])); ?>" data-email="<?php echo strtolower(htmlspecialchars($user['email'])); ?>">
                     <td><?php echo $user['id']; ?></td>
                     <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($user['email']); ?></td>
