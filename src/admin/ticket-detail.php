@@ -23,6 +23,11 @@ $messages = $ticketModel->getMessages($ticketId);
 $success = '';
 $error = '';
 
+// Check for success parameter from redirect
+if (isset($_GET['success'])) {
+    $success = 'Antwoord succesvol verzonden';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -37,10 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($ticket['status'] === 'new') {
                     $ticketModel->updateStatus($ticketId, 'in_progress');
                 }
-                $success = 'Antwoord succesvol verzonden';
-                // Refresh messages
-                $messages = $ticketModel->getMessages($ticketId);
-                $ticket = $ticketModel->getById($ticketId);
+                // Redirect to prevent duplicate submission on page refresh (POST-Redirect-GET pattern)
+                header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
+                exit;
             } else {
                 $error = 'Er is een fout opgetreden bij het verzenden van het antwoord';
             }
@@ -49,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status = $_POST['status'] ?? '';
 
         if ($ticketModel->updateStatus($ticketId, $status)) {
-            $success = 'Ticket status bijgewerkt';
-            $ticket = $ticketModel->getById($ticketId);
+            header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
+            exit;
         } else {
             $error = 'Er is een fout opgetreden bij het bijwerken van de status';
         }
@@ -64,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db = Database::getInstance()->getConnection();
             $stmt = $db->prepare("UPDATE tickets SET priority = ? WHERE id = ?");
             if ($stmt->execute([$priority, $ticketId])) {
-                $success = 'Prioriteit bijgewerkt';
-                $ticket = $ticketModel->getById($ticketId);
+                header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
+                exit;
             } else {
                 $error = 'Er is een fout opgetreden bij het bijwerken van de prioriteit';
             }

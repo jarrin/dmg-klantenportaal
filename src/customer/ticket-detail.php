@@ -24,6 +24,11 @@ $messages = $ticketModel->getMessages($ticketId);
 $success = '';
 $error = '';
 
+// Check for success parameter from redirect
+if (isset($_GET['success'])) {
+    $success = 'Bericht succesvol toegevoegd';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = trim($_POST['message'] ?? '');
 
@@ -35,10 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($ticket['status'] === 'closed') {
                 $ticketModel->updateStatus($ticketId, 'new');
             }
-            $success = 'Bericht succesvol toegevoegd';
-            // Refresh messages
-            $messages = $ticketModel->getMessages($ticketId);
-            $ticket = $ticketModel->getById($ticketId);
+            // Redirect to prevent duplicate submission on page refresh (POST-Redirect-GET pattern)
+            header('Location: /customer/ticket-detail.php?id=' . $ticketId . '&success=1');
+            exit;
         } else {
             $error = 'Er is een fout opgetreden bij het toevoegen van het bericht';
         }
