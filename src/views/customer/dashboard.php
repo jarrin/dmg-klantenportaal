@@ -34,7 +34,7 @@ $pageTitle = 'Dashboard - ' . APP_NAME;
             <p>Open Tickets</p>
         </div>
     </div>
-    
+
     <div class="dashboard-grid">
         <div class="dashboard-section">
             <h2>Recente Producten</h2>
@@ -64,7 +64,7 @@ $pageTitle = 'Dashboard - ' . APP_NAME;
                 <a href="/views/customer/products.php" class="btn btn-secondary">Alle producten</a>
             <?php endif; ?>
         </div>
-        
+
         <div class="dashboard-section">
             <h2>Recente Tickets</h2>
             <?php if (empty($tickets)): ?>

@@ -79,12 +79,12 @@ $pageTitle = 'Product Opzeggen - ' . APP_NAME;
             </div>
         </div>
 
-    <div class="alert alert-warning mt-20">
+        <div class="alert alert-warning mt-20">
             <strong>Let op:</strong> Door dit product op te zeggen, wordt het aan het einde van de looptijd beëindigd.
             Het product blijft actief tot de verloopdatum.
         </div>
 
-    <h2 class="mt-30">Opzegverzoek Indienen</h2>
+        <h2 class="mt-30">Opzegverzoek Indienen</h2>
         <form method="POST" action="">
             <div class="form-group full-width">
                 <label for="reason">Reden voor opzegging *</label>
