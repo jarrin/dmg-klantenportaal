@@ -64,6 +64,17 @@ $cancellationsPage = $cancellationsPage ?? 1;
                     value="<?php echo htmlspecialchars($searchRequests); ?>"
                     onkeyup="filterRows('request-row', this.value)"
                 >
+                <div class="table-actions">
+                    <div class="per-page-selector">
+                        <label>Toon:</label>
+                        <select onchange="window.location.href='?per_page='+this.value">
+                            <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                            <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                            <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                            <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <table class="data-table">
                 <thead>
@@ -126,6 +137,17 @@ $cancellationsPage = $cancellationsPage ?? 1;
                     value="<?php echo htmlspecialchars($searchCancellations); ?>"
                     onkeyup="filterRows('cancellation-row', this.value)"
                 >
+                <div class="table-actions">
+                    <div class="per-page-selector">
+                        <label>Toon:</label>
+                        <select onchange="window.location.href='?per_page='+this.value">
+                            <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                            <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                            <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                            <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <table class="data-table">
                 <thead>
