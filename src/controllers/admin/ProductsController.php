@@ -308,6 +308,7 @@ class ProductsController
         $data['pendingCancellations'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $data['perPage'] = $perPage;
+        $data['page'] = $page;
         $data['requestsPage'] = $requestsPage;
         $data['cancellationsPage'] = $cancellationsPage;
 

@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../controllers/admin/TicketsController.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../classes/Auth.php';
+require_once __DIR__ . '/../../controllers/admin/TicketsController.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
@@ -20,7 +20,7 @@ extract($data);
 
 $pageTitle = 'Ticketbeheer - ' . APP_NAME;
 ?>
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../../includes/header.php'; ?>
 
 <div class="container">
     <h1>Ticketbeheer</h1>

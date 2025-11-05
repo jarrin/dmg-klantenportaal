@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../controllers/customer/CancelProductController.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../classes/Auth.php';
+require_once __DIR__ . '/../../controllers/customer/CancelProductController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
@@ -33,7 +33,7 @@ if (!$product) {
 
 $pageTitle = 'Product Opzeggen - ' . APP_NAME;
 ?>
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../../includes/header.php'; ?>
 
 <div class="container">
     <div class="page-header">
