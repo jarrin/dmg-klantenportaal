@@ -5,10 +5,12 @@ require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Product.php';
 require_once __DIR__ . '/../classes/Ticket.php';
+require_once __DIR__ . '/../classes/Paginator.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
 
+$db = Database::getInstance()->getConnection();
 $userModel = new User();
 $productModel = new Product();
 $ticketModel = new Ticket();
@@ -16,7 +18,28 @@ $ticketModel = new Ticket();
 $totalUsers = count($userModel->getAll('customer'));
 $totalProducts = count($productModel->getAll());
 $ticketStats = $ticketModel->getStatistics();
-$expiringProducts = $productModel->getExpiringProducts(30);
+
+// Pagination for expiring products
+$expiringPage = isset($_GET['expiring_page']) ? max(1, (int)$_GET['expiring_page']) : 1;
+$expiringPerPage = 10;
+
+// Count expiring products
+$countExpiringQuery = "SELECT COUNT(*) FROM products WHERE expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) AND expiry_date >= CURRENT_DATE AND status = 'active'";
+$expiringPaginator = Paginator::fromQuery($db, $countExpiringQuery, [], $expiringPerPage, $expiringPage);
+
+// Get expiring products with pagination
+$stmt = $db->prepare("
+    SELECT p.*, u.first_name, u.last_name 
+    FROM products p 
+    JOIN users u ON p.user_id = u.id 
+    WHERE p.expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) 
+    AND p.expiry_date >= CURRENT_DATE 
+    AND p.status = 'active'
+    ORDER BY p.expiry_date ASC 
+    " . $expiringPaginator->getLimitClause()
+);
+$stmt->execute();
+$expiringProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $pageTitle = 'Admin Dashboard - ' . APP_NAME;
 ?>
@@ -43,8 +66,10 @@ $pageTitle = 'Admin Dashboard - ' . APP_NAME;
     </div>
 
     <div class="dashboard-grid">
-        <div class="dashboard-section">
-            <h2>Verlopen Producten (30 dagen)</h2>
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Verlopen Producten (30 dagen) (<?php echo $expiringPaginator->getTotalItems(); ?>)</h2>
+            </div>
             <?php if (empty($expiringProducts)): ?>
                 <p>Geen producten verlopen binnen 30 dagen.</p>
             <?php else: ?>
@@ -70,6 +95,7 @@ $pageTitle = 'Admin Dashboard - ' . APP_NAME;
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                <?php echo $expiringPaginator->render('dashboard.php', [], 'expiring_page'); ?>
             <?php endif; ?>
         </div>
 

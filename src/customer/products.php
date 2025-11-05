@@ -3,28 +3,55 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/Product.php';
+require_once __DIR__ . '/../classes/Paginator.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
 $productModel = new Product();
 $userId = $auth->getCurrentUserId();
-$products = $productModel->getByUserId($userId);
+$db = Database::getInstance()->getConnection();
+
+// Pagination setup
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 12;
+
+// Count total products for this user
+$countQuery = "SELECT COUNT(*) FROM products WHERE user_id = ?";
+$paginator = Paginator::fromQuery($db, $countQuery, [$userId], $perPage, $page);
+
+// Get products with pagination
+$stmt = $db->prepare("
+    SELECT p.*, pt.name as type_name
+    FROM products p
+    LEFT JOIN product_types pt ON p.product_type_id = pt.id
+    WHERE p.user_id = ?
+    ORDER BY p.created_at DESC
+    " . $paginator->getLimitClause()
+);
+$stmt->execute([$userId]);
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $pageTitle = 'Mijn Producten - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
 
 <div class="container">
     <div class="page-header">
-        <h1>Mijn Producten</h1>
-        <a href="/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
-    </div>
-    
-    <?php if (!empty($products)): ?>
-        <div class="product-search-box">
-            <input type="text" id="productSearch" placeholder="Zoeken op productnaam, domeinnaam of type...">
+        <h1>Mijn Producten (<?php echo $paginator->getTotalItems(); ?>)</h1>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="per-page-selector">
+                <label>Toon:</label>
+                <select onchange="window.location.href='?per_page='+this.value+'&page=1'">
+                    <option value="12" <?php echo $perPage == 12 ? 'selected' : ''; ?>>12</option>
+                    <option value="24" <?php echo $perPage == 24 ? 'selected' : ''; ?>>24</option>
+                    <option value="36" <?php echo $perPage == 36 ? 'selected' : ''; ?>>36</option>
+                    <option value="48" <?php echo $perPage == 48 ? 'selected' : ''; ?>>48</option>
+                </select>
+            </div>
+            <a href="/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
         </div>
-    <?php endif; ?>
+    </div>
     
     <?php if (empty($products)): ?>
             <div class="alert alert-info">
@@ -93,28 +120,18 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
                     </div>
             <?php endforeach; ?>
     </div>
+
+    <?php echo $paginator->render('products.php', ['per_page' => $perPage]); ?>
 <?php endif; ?>
 </div>
 
 <script>
-    // Product search/filter
-    const productSearch = document.getElementById('productSearch');
-    if (productSearch) {
-        productSearch.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const products = document.querySelectorAll('.product-card');
-            
-            products.forEach(product => {
-                const name = product.querySelector('h3').textContent.toLowerCase();
-                const type = product.textContent.toLowerCase();
-                
-                if (name.includes(searchTerm) || type.includes(searchTerm)) {
-                    product.style.display = '';
-                } else {
-                    product.style.display = 'none';
-                }
-            });
-        });
+    // Confirmation modal for product cancellation
+    function openConfirmModal(title, message, url) {
+        if (confirm(message)) {
+            window.location.href = url;
+        }
+        return false;
     }
 </script>
 

@@ -4,11 +4,13 @@ require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Validator.php';
+require_once __DIR__ . '/../classes/Paginator.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
 
 $userModel = new User();
+$db = Database::getInstance()->getConnection();
 
 $success = '';
 $error = '';
@@ -80,7 +82,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$users = $userModel->getAll('customer');
+// Pagination setup
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 15;
+
+// Count total users
+$countQuery = "SELECT COUNT(*) FROM users WHERE role = 'customer'";
+$paginator = Paginator::fromQuery($db, $countQuery, [], $perPage, $page);
+
+// Get users with pagination
+$stmt = $db->prepare("SELECT * FROM users WHERE role = 'customer' ORDER BY created_at DESC " . $paginator->getLimitClause());
+$stmt->execute();
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
@@ -101,6 +115,59 @@ $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Gebruikers (<?php echo $paginator->getTotalItems(); ?>)</h2>
+            <div class="table-actions">
+                <div class="per-page-selector">
+                    <label>Toon:</label>
+                    <select onchange="window.location.href='?per_page='+this.value">
+                        <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                        <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                        <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                        <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Naam</th>
+                <th>E-mail</th>
+                <th>Bedrijf</th>
+                <th>Geregistreerd</th>
+                <th>Laatste login</th>
+                <th>Acties</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($users as $user): ?>
+                <tr>
+                    <td><?php echo $user['id']; ?></td>
+                    <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
+                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                    <td><?php echo htmlspecialchars($user['company_name'] ?? '-'); ?></td>
+                    <td><?php echo date('d-m-Y', strtotime($user['created_at'])); ?></td>
+                    <td><?php echo $user['last_login'] ? date('d-m-Y H:i', strtotime($user['last_login'])) : 'Nooit'; ?></td>
+                    <td>
+                        <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u deze gebruiker wilt verwijderen?')">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                            <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <?php echo $paginator->render('users.php', ['per_page' => $perPage]); ?>
+    </div>
+
+    <!-- New User Form Modal -->
     <div id="newUserForm" style="display: none;" class="form-modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('newUserForm').style.display='none'">&times;</span>
@@ -164,39 +231,6 @@ $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
             </form>
         </div>
     </div>
-
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Naam</th>
-                <th>E-mail</th>
-                <th>Bedrijf</th>
-                <th>Geregistreerd</th>
-                <th>Laatste login</th>
-                <th>Acties</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($users as $user): ?>
-                <tr>
-                    <td><?php echo $user['id']; ?></td>
-                    <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
-                    <td><?php echo htmlspecialchars($user['email']); ?></td>
-                    <td><?php echo htmlspecialchars($user['company_name'] ?? '-'); ?></td>
-                    <td><?php echo date('d-m-Y', strtotime($user['created_at'])); ?></td>
-                    <td><?php echo $user['last_login'] ? date('d-m-Y H:i', strtotime($user['last_login'])) : 'Nooit'; ?></td>
-                    <td>
-                        <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u deze gebruiker wilt verwijderen?')">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                            <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
-                        </form>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

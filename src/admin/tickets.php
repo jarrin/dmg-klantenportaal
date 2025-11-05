@@ -3,11 +3,13 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/Ticket.php';
+require_once __DIR__ . '/../classes/Paginator.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
 
 $ticketModel = new Ticket();
+$db = Database::getInstance()->getConnection();
 
 $success = '';
 $error = '';
@@ -27,7 +29,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$tickets = $ticketModel->getAll();
+// Pagination setup
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 15;
+
+// Count total tickets
+$countQuery = "SELECT COUNT(*) FROM tickets";
+$paginator = Paginator::fromQuery($db, $countQuery, [], $perPage, $page);
+
+// Get tickets with pagination
+$stmt = $db->prepare("
+    SELECT 
+        t.*, 
+        u.first_name, 
+        u.last_name, 
+        u.email,
+        (SELECT COUNT(*) FROM ticket_messages WHERE ticket_id = t.id) as message_count
+    FROM tickets t
+    LEFT JOIN users u ON t.user_id = u.id
+    ORDER BY 
+        CASE 
+            WHEN t.status = 'new' THEN 1
+            WHEN t.status = 'in_progress' THEN 2
+            WHEN t.status = 'closed' THEN 3
+        END,
+        t.created_at DESC
+    " . $paginator->getLimitClause()
+);
+$stmt->execute();
+$tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $stats = $ticketModel->getStatistics();
 $pageTitle = 'Ticketbeheer - ' . APP_NAME;
 ?>
@@ -63,8 +94,22 @@ $pageTitle = 'Ticketbeheer - ' . APP_NAME;
         </div>
     </div>
 
-    <div class="dashboard-section">
-        <h2>Alle Tickets</h2>
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Alle Tickets (<?php echo $paginator->getTotalItems(); ?>)</h2>
+            <div class="table-actions">
+                <div class="per-page-selector">
+                    <label>Toon:</label>
+                    <select onchange="window.location.href='?per_page='+this.value">
+                        <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                        <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                        <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                        <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <table class="data-table">
             <thead>
                 <tr>
@@ -109,6 +154,8 @@ $pageTitle = 'Ticketbeheer - ' . APP_NAME;
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php echo $paginator->render('tickets.php', ['per_page' => $perPage]); ?>
     </div>
 </div>
 

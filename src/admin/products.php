@@ -4,6 +4,7 @@ require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Product.php';
+require_once __DIR__ . '/../classes/Paginator.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
@@ -171,32 +172,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle extend action from URL (support optional months param)
-if (isset($_GET['extend'])) {
-    $productId = $_GET['extend'];
-    $months = isset($_GET['months']) ? (int)$_GET['months'] : 12;
-    if ($productModel->extendProduct($productId, $months)) {
-        $success = 'Product succesvol verlengd met ' . $months . ' maanden';
-    }
-}
+// Pagination setup
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 15;
 
-$products = $productModel->getAll();
+// Count total products
+$countQuery = "SELECT COUNT(*) FROM products";
+$paginator = Paginator::fromQuery($db, $countQuery, [], $perPage, $page);
+
+// Get products with pagination
+$stmt = $db->prepare("
+    SELECT p.*, u.first_name, u.last_name, u.email, pt.name as type_name
+    FROM products p
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN product_types pt ON p.product_type_id = pt.id
+    ORDER BY p.created_at DESC
+    " . $paginator->getLimitClause()
+);
+$stmt->execute();
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $users = $userModel->getAll('customer');
 $productTypes = $productModel->getProductTypes();
 
-// Get pending requests
-$stmt = $db->query("
+// Pagination for pending requests
+$requestsPage = isset($_GET['requests_page']) ? max(1, (int)$_GET['requests_page']) : 1;
+$requestsPerPage = 10;
+$countRequestsQuery = "SELECT COUNT(*) FROM product_requests WHERE status = 'pending'";
+$requestsPaginator = Paginator::fromQuery($db, $countRequestsQuery, [], $requestsPerPage, $requestsPage);
+
+// Get pending requests with pagination
+$stmt = $db->prepare("
     SELECT pr.*, pt.name as type_name, u.first_name, u.last_name, u.email
     FROM product_requests pr
     JOIN product_types pt ON pr.product_type_id = pt.id
     JOIN users u ON pr.user_id = u.id
     WHERE pr.status = 'pending'
     ORDER BY pr.created_at DESC
-");
-$pendingRequests = $stmt->fetchAll();
+    " . $requestsPaginator->getLimitClause()
+);
+$stmt->execute();
+$pendingRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get pending cancellations
-$stmt = $db->query("
+// Pagination for pending cancellations
+$cancellationsPage = isset($_GET['cancellations_page']) ? max(1, (int)$_GET['cancellations_page']) : 1;
+$cancellationsPerPage = 10;
+$countCancellationsQuery = "SELECT COUNT(*) FROM cancellation_requests WHERE status = 'pending'";
+$cancellationsPaginator = Paginator::fromQuery($db, $countCancellationsQuery, [], $cancellationsPerPage, $cancellationsPage);
+
+// Get pending cancellations with pagination
+$stmt = $db->prepare("
     SELECT cr.*, p.name as product_name, pt.name as type_name, u.first_name, u.last_name, u.email
     FROM cancellation_requests cr
     JOIN products p ON cr.product_id = p.id
@@ -204,8 +229,11 @@ $stmt = $db->query("
     JOIN users u ON cr.user_id = u.id
     WHERE cr.status = 'pending'
     ORDER BY cr.created_at DESC
-");
-$pendingCancellations = $stmt->fetchAll();
+    " . $cancellationsPaginator->getLimitClause()
+);
+$stmt->execute();
+$pendingCancellations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $pageTitle = 'Productbeheer - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
@@ -227,9 +255,11 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
     <?php endif; ?>
 
     <!-- Pending Requests -->
-    <?php if (!empty($pendingRequests)): ?>
-        <div class="dashboard-section">
-            <h2>In behandeling: Product Aanvragen (<?php echo count($pendingRequests); ?>)</h2>
+    <?php if ($requestsPaginator->getTotalItems() > 0): ?>
+        <div class="table-container">
+            <div class="table-header">
+                <h2>In behandeling: Product Aanvragen (<?php echo $requestsPaginator->getTotalItems(); ?>)</h2>
+            </div>
             <table class="data-table">
                 <thead>
                     <tr>
@@ -265,13 +295,25 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                     <?php endforeach; ?>
                 </tbody>
             </table>
+
+            <?php 
+                // Preserve other pagination states
+                $requestsParams = [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'cancellations_page' => $cancellationsPage
+                ];
+                echo $requestsPaginator->render('products.php', $requestsParams, 'requests_page'); 
+            ?>
         </div>
     <?php endif; ?>
 
     <!-- Pending Cancellations -->
-    <?php if (!empty($pendingCancellations)): ?>
-        <div class="dashboard-section">
-            <h2>In behandeling: Opzegverzoeken (<?php echo count($pendingCancellations); ?>)</h2>
+    <?php if ($cancellationsPaginator->getTotalItems() > 0): ?>
+        <div class="table-container">
+            <div class="table-header">
+                <h2>In behandeling: Opzegverzoeken (<?php echo $cancellationsPaginator->getTotalItems(); ?>)</h2>
+            </div>
             <table class="data-table">
                 <thead>
                     <tr>
@@ -305,12 +347,35 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <?php
+            // Preserve other pagination states
+            $cancellationsParams = [
+                'page' => $page,
+                'per_page' => $perPage,
+                'requests_page' => $requestsPage
+            ];
+            echo $cancellationsPaginator->render('products.php', $cancellationsParams, 'cancellations_page');
+            ?>
         </div>
     <?php endif; ?>
 
     <!-- All Products -->
-    <div class="dashboard-section">
-        <h2>Alle Producten</h2>
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Alle Producten (<?php echo $paginator->getTotalItems(); ?>)</h2>
+            <div class="table-actions">
+                <div class="per-page-selector">
+                    <label>Toon:</label>
+                    <select onchange="window.location.href='?per_page='+this.value">
+                        <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                        <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                        <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                        <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <table class="data-table">
             <thead>
                 <tr>
@@ -376,6 +441,16 @@ $pageTitle = 'Productbeheer - ' . APP_NAME;
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php 
+        // Preserve other pagination states for main products
+        $mainParams = [
+            'per_page' => $perPage,
+            'requests_page' => $requestsPage,
+            'cancellations_page' => $cancellationsPage
+        ];
+        echo $paginator->render('products.php', $mainParams, 'page'); 
+        ?>
     </div>
 
     <!-- New Product Modal -->
