@@ -38,7 +38,7 @@ $cancellationsPage = $cancellationsPage ?? 1;
 <div class="container">
     <div class="page-header">
         <h1>Productbeheer</h1>
-        <button class="btn btn-primary" onclick="document.getElementById('newProductForm').style.display='block'">
+        <button class="btn btn-primary" onclick="document.getElementById('newProductForm').classList.remove('hidden')">
             Nieuw product
         </button>
     </div>
@@ -247,40 +247,28 @@ $cancellationsPage = $cancellationsPage ?? 1;
                         <td><span class="badge badge-<?php echo $product['status']; ?>"><?php echo ucfirst($product['status']); ?></span></td>
                         <td>
                             <?php if ($product['status'] === 'active'): ?>
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="action" value="extend">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                    <select name="months" class="btn btn-sm btn-primary">
-                                        <option value="1">1 maand</option>
-                                        <option value="3">3 maanden</option>
-                                        <option value="6">6 maanden</option>
-                                        <option value="12" selected>12 maanden</option>
-                                        <option value="24">24 maanden</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-sm btn-primary">Verlengen</button>
-                                </form>
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="action" value="cancel">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-secondary">Opzeggen</button>
-                                </form>
-                                <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u dit product wilt verwijderen?')">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-primary" 
+                                    onclick="openExtendModal(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name'] ?? '', ENT_QUOTES); ?>')">
+                                    Verlengen
+                                </button>
+                                <button type="button" class="btn btn-sm btn-secondary" 
+                                    onclick="openCancelModal(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name'] ?? '', ENT_QUOTES); ?>')">
+                                    Opzeggen
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger" 
+                                    onclick="openDeleteModal(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name'] ?? '', ENT_QUOTES); ?>')">
+                                    Verwijderen
+                                </button>
                             <?php endif; ?>
                             <?php if ($product['status'] !== 'active'): ?>
-                                <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u dit product wilt verwijderen?')">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
-                                </form>
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="action" value="activate">
-                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                    <button type="submit" class="btn btn-sm badge-active">Activieren</button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-danger" 
+                                    onclick="openDeleteModal(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name'] ?? '', ENT_QUOTES); ?>')">
+                                    Verwijderen
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success" 
+                                    onclick="openActivateModal(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name'] ?? '', ENT_QUOTES); ?>')">
+                                    Activieren
+                                </button>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -300,9 +288,9 @@ $cancellationsPage = $cancellationsPage ?? 1;
     </div>
 
     <!-- New Product Modal -->
-    <div id="newProductForm" style="display: none;" class="form-modal">
+    <div id="newProductForm" class="form-modal hidden">
         <div class="modal-content">
-            <span class="close" onclick="document.getElementById('newProductForm').style.display='none'">&times;</span>
+            <span class="close" onclick="document.getElementById('newProductForm').classList.add('hidden')">&times;</span>
             <h2>Nieuw Product Toevoegen</h2>
             <form method="POST" action="">
                 <input type="hidden" name="action" value="create">
@@ -365,12 +353,125 @@ $cancellationsPage = $cancellationsPage ?? 1;
                 </div>
 
                 <button type="submit" class="btn btn-primary">Product Aanmaken</button>
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProductForm').style.display='none'">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProductForm').classList.add('hidden')">
+                    Annuleren
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Extend Product Modal -->
+    <div id="extendProductModal" class="form-modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('extendProductModal').classList.add('hidden')">&times;</span>
+            <h2>Product Verlengen</h2>
+            <p>Product: <strong id="extendProductName"></strong></p>
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="extend">
+                <input type="hidden" name="product_id" id="extendProductId">
+
+                <div class="form-group">
+                    <label for="extend_months">Verleng met:</label>
+                    <select name="months" id="extend_months" class="form-control">
+                        <option value="1">1 maand</option>
+                        <option value="3">3 maanden</option>
+                        <option value="6">6 maanden</option>
+                        <option value="12" selected>12 maanden</option>
+                        <option value="24">24 maanden</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Verlengen</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('extendProductModal').classList.add('hidden')">
+                    Annuleren
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cancel Product Modal -->
+    <div id="cancelProductModal" class="form-modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('cancelProductModal').classList.add('hidden')">&times;</span>
+            <h2>Product Opzeggen</h2>
+            <p>Weet u zeker dat u het volgende product wilt opzeggen?</p>
+            <p>Product: <strong id="cancelProductName"></strong></p>
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="cancel">
+                <input type="hidden" name="product_id" id="cancelProductId">
+
+                <button type="submit" class="btn btn-danger">Ja, Opzeggen</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('cancelProductModal').classList.add('hidden')">
+                    Annuleren
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Product Modal -->
+    <div id="deleteProductModal" class="form-modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('deleteProductModal').classList.add('hidden')">&times;</span>
+            <h2>Product Verwijderen</h2>
+            <p>Weet u zeker dat u het volgende product permanent wilt verwijderen?</p>
+            <p>Product: <strong id="deleteProductName"></strong></p>
+            <p class="alert alert-warning">Deze actie kan niet ongedaan worden gemaakt!</p>
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="product_id" id="deleteProductId">
+
+                <button type="submit" class="btn btn-danger">Ja, Verwijderen</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('deleteProductModal').classList.add('hidden')">
+                    Annuleren
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activate Product Modal -->
+    <div id="activateProductModal" class="form-modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('activateProductModal').classList.add('hidden')">&times;</span>
+            <h2>Product Activeren</h2>
+            <p>Weet u zeker dat u het volgende product wilt activeren?</p>
+            <p>Product: <strong id="activateProductName"></strong></p>
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="activate">
+                <input type="hidden" name="product_id" id="activateProductId">
+
+                <button type="submit" class="btn btn-success">Ja, Activeren</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('activateProductModal').classList.add('hidden')">
                     Annuleren
                 </button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+function openExtendModal(productId, productName) {
+    document.getElementById('extendProductId').value = productId;
+    document.getElementById('extendProductName').textContent = productName;
+    document.getElementById('extendProductModal').classList.remove('hidden');
+}
+
+function openCancelModal(productId, productName) {
+    document.getElementById('cancelProductId').value = productId;
+    document.getElementById('cancelProductName').textContent = productName;
+    document.getElementById('cancelProductModal').classList.remove('hidden');
+}
+
+function openDeleteModal(productId, productName) {
+    document.getElementById('deleteProductId').value = productId;
+    document.getElementById('deleteProductName').textContent = productName;
+    document.getElementById('deleteProductModal').classList.remove('hidden');
+}
+
+function openActivateModal(productId, productName) {
+    document.getElementById('activateProductId').value = productId;
+    document.getElementById('activateProductName').textContent = productName;
+    document.getElementById('activateProductModal').classList.remove('hidden');
+}
+</script>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

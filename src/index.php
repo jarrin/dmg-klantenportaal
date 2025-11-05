@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 </form>
 
-                <div class="login-demo-info">
+                <div class="login-demo-info" hidden>
                     <div class="demo-header">
                         <i class="fas fa-info-circle"></i>
                         <strong>Demo Accounts</strong>
