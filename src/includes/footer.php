@@ -8,5 +8,6 @@
         </div> <!-- .main-content -->
     </div> <!-- .layout-wrapper -->
     <script src="/js/confirm-modal.js"></script>
+    <script src="/js/user-filter.js"></script>
 </body>
 </html>
