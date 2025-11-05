@@ -41,7 +41,7 @@ $pageTitle = 'Admin Dashboard - ' . APP_NAME;
             <p>Tickets In Behandeling</p>
         </div>
     </div>
-    
+
     <div class="dashboard-grid">
         <div class="dashboard-section">
             <h2>Verlopen Producten (30 dagen)</h2>
@@ -72,7 +72,7 @@ $pageTitle = 'Admin Dashboard - ' . APP_NAME;
                 </table>
             <?php endif; ?>
         </div>
-        
+
         <div class="dashboard-section">
             <h2>Snelle Acties</h2>
             <div class="quick-actions">
