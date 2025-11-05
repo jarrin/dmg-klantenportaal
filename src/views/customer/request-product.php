@@ -27,7 +27,7 @@ $pageTitle = 'Product Aanvragen - ' . APP_NAME;
 <div class="container">
     <div class="page-header">
         <h1>Product Aanvragen</h1>
-        <a href="/customer/products.php" class="btn btn-secondary">Terug naar producten</a>
+        <a href="/views/customer/products.php" class="btn btn-secondary">Terug naar producten</a>
     </div>
 
     <?php if ($success): ?>

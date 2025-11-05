@@ -49,7 +49,7 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
     <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
         <div class="stat-card">
             <p>Klant</p>
-            <h3 style="font-size: 18px;">
+                <h3 class="mt-20">
                 <?php echo htmlspecialchars($ticket['first_name'] . ' ' . $ticket['last_name']); ?>
             </h3>
             <small><?php echo htmlspecialchars($ticket['email']); ?></small>

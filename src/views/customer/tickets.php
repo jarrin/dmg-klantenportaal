@@ -17,7 +17,7 @@ $success = $result['success'];
 $error = $result['error'];
 
 if ($result['redirect']) {
-    header('Location: /customer/ticket-detail.php?id=' . $result['ticketId']);
+    header('Location: /views/customer/ticket-detail.php?id=' . $result['ticketId']);
     exit;
 }
 
@@ -45,7 +45,7 @@ $pageTitle = 'Tickets - ' . APP_NAME;
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
-    <div id="newTicketForm" style="display: none;" class="form-modal">
+    <div id="newTicketForm" class="form-modal hidden">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('newTicketForm').style.display='none'">&times;</span>
             <h2>Nieuw Ticket Aanmaken</h2>
@@ -111,7 +111,7 @@ $pageTitle = 'Tickets - ' . APP_NAME;
                         <td><?php echo $ticket['message_count']; ?></td>
                         <td><?php echo date('d-m-Y H:i', strtotime($ticket['created_at'])); ?></td>
                         <td>
-                            <a href="/customer/ticket-detail.php?id=<?php echo $ticket['id']; ?>" class="btn btn-sm btn-primary">Bekijken</a>
+                            <a href="/views/customer/ticket-detail.php?id=<?php echo $ticket['id']; ?>" class="btn btn-sm btn-primary">Bekijken</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

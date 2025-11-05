@@ -1631,3 +1631,14 @@ body {
         text-align: center;
     }
 }
+
+/* Utility classes to replace inline styles */
+.hidden { display: none !important; }
+.inline-form { display: inline; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+.narrow-dashboard { max-width: 800px; margin: 0 auto; }
+.flex-gap-center { display: flex; gap: 10px; align-items: center; }
+.btn-icon { border: none; padding: 4px 8px; cursor: pointer; background: transparent; }
+.debug-small { font-size: 12px; }
+.no-results { text-align: center; padding: 20px; color: #999; }

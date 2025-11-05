@@ -22,7 +22,7 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
 <div class="container">
     <div class="page-header">
         <h1>Mijn Producten (<?php echo $paginator->getTotalItems(); ?>)</h1>
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="flex-gap-center">
             <div class="per-page-selector">
                 <label>Toon:</label>
                 <select onchange="window.location.href='?per_page='+this.value+'&page=1'">
@@ -32,7 +32,7 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
                     <option value="48" <?php echo $perPage == 48 ? 'selected' : ''; ?>>48</option>
                 </select>
             </div>
-            <a href="/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
+            <a href="/views/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
         </div>
     </div>
     
@@ -93,9 +93,8 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
                         
                         <?php if ($product['status'] === 'active'): ?>
                             <div class="product-actions">
-                                <a href="/customer/cancel-product.php?id=<?php echo $product['id']; ?>" 
-                                   class="btn btn-danger btn-sm"
-                                   onclick="return openConfirmModal('Opzeggen product', 'Weet u zeker dat u dit product wilt opzeggen?', '/customer/cancel-product.php?id=<?php echo $product['id']; ?>')">
+                                <a href="/views/customer/cancel-product.php?id=<?php echo $product['id']; ?>" 
+                                   class="btn btn-danger btn-sm">
                                     Opzeggen
                                 </a>
                             </div>
@@ -107,15 +106,5 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
     <?php echo $paginator->render('products.php', ['per_page' => $perPage]); ?>
 <?php endif; ?>
 </div>
-
-<script>
-    // Confirmation modal for product cancellation
-    function openConfirmModal(title, message, url) {
-        if (confirm(message)) {
-            window.location.href = url;
-        }
-        return false;
-    }
-</script>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

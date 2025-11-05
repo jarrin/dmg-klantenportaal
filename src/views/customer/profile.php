@@ -122,7 +122,7 @@ $pageTitle = 'Mijn Profiel - ' . APP_NAME;
         </div>
     </div>
 
-    <div class="dashboard-section" style="margin-top: 20px;">
+    <div class="dashboard-section mt-20">
         <h2>Account Informatie</h2>
         <div class="detail-row">
             <span class="label">Account aangemaakt op:</span>
