@@ -131,4 +131,4 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
     </div>
 </div>
 
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+<?php include __DIR__ . '/../../includes/footer.php'; ?>

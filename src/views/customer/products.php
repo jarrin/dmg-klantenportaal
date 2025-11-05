@@ -118,4 +118,4 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
     }
 </script>
 
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+<?php include __DIR__ . '/../../includes/footer.php'; ?>

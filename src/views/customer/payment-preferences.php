@@ -130,6 +130,6 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
             </form>
         </div>
     </div>
-        <?php include __DIR__ . '/../includes/footer.php'; ?>
+        <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </div>
 <script src="../js/signature.js"></script>
