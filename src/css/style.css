@@ -1496,6 +1496,7 @@ body {
     display: flex;
     gap: var(--spacing-md);
     align-items: center;
+    min-width: 30%;
 }
 
 .table-header h2 {
