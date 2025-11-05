@@ -56,23 +56,24 @@ $cancellationsPage = $cancellationsPage ?? 1;
         <div class="table-container">
             <div class="table-header">
                 <h2>In behandeling: Product Aanvragen (<?php echo $requestsPaginator->getTotalItems(); ?>)</h2>
-                <input 
-                    type="text" 
-                    id="requestSearch" 
-                    class="search-box" 
-                    placeholder="Zoeken op naam..." 
-                    value="<?php echo htmlspecialchars($searchRequests); ?>"
-                    onkeyup="filterRows('request-row', this.value)"
-                >
-                <div class="table-actions">
-                    <div class="per-page-selector">
-                        <label>Toon:</label>
-                        <select onchange="window.location.href='?per_page='+this.value">
-                            <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
-                            <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
-                            <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
-                            <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
-                        </select>
+                <div class="table-header-right">
+                    <input
+                        type="text"
+                        id="requestSearch"
+                        class="search-box"
+                        placeholder="Zoeken op naam..."
+                        value="<?php echo htmlspecialchars($searchRequests); ?>"
+                        onkeyup="filterRows('request-row', this.value)">
+                    <div class="table-actions">
+                        <div class="per-page-selector">
+                            <label>Toon:</label>
+                            <select onchange="window.location.href='?per_page='+this.value">
+                                <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                                <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                                <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                                <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -112,14 +113,14 @@ $cancellationsPage = $cancellationsPage ?? 1;
                 </tbody>
             </table>
 
-            <?php 
-                // Preserve other pagination states
-                $requestsParams = [
-                    'page' => $page,
-                    'per_page' => $perPage,
-                    'cancellations_page' => $cancellationsPage
-                ];
-                echo $requestsPaginator->render('products.php', $requestsParams, 'requests_page'); 
+            <?php
+            // Preserve other pagination states
+            $requestsParams = [
+                'page' => $page,
+                'per_page' => $perPage,
+                'cancellations_page' => $cancellationsPage
+            ];
+            echo $requestsPaginator->render('products.php', $requestsParams, 'requests_page');
             ?>
         </div>
     <?php endif; ?>
@@ -129,23 +130,24 @@ $cancellationsPage = $cancellationsPage ?? 1;
         <div class="table-container">
             <div class="table-header">
                 <h2>In behandeling: Opzegverzoeken (<?php echo $cancellationsPaginator->getTotalItems(); ?>)</h2>
-                <input 
-                    type="text" 
-                    id="cancellationSearch" 
-                    class="search-box" 
-                    placeholder="Zoeken op naam of product..." 
-                    value="<?php echo htmlspecialchars($searchCancellations); ?>"
-                    onkeyup="filterRows('cancellation-row', this.value)"
-                >
-                <div class="table-actions">
-                    <div class="per-page-selector">
-                        <label>Toon:</label>
-                        <select onchange="window.location.href='?per_page='+this.value">
-                            <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
-                            <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
-                            <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
-                            <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
-                        </select>
+                <div class="table-header-right">
+                    <input
+                        type="text"
+                        id="cancellationSearch"
+                        class="search-box"
+                        placeholder="Zoeken op naam of product..."
+                        value="<?php echo htmlspecialchars($searchCancellations); ?>"
+                        onkeyup="filterRows('cancellation-row', this.value)">
+                    <div class="table-actions">
+                        <div class="per-page-selector">
+                            <label>Toon:</label>
+                            <select onchange="window.location.href='?per_page='+this.value">
+                                <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                                <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                                <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                                <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,23 +200,24 @@ $cancellationsPage = $cancellationsPage ?? 1;
     <div class="table-container">
         <div class="table-header">
             <h2>Alle Producten (<?php echo $paginator->getTotalItems(); ?>)</h2>
-            <input 
-                type="text" 
-                id="productSearch" 
-                class="search-box" 
-                placeholder="Zoeken op naam of klant..." 
-                value="<?php echo htmlspecialchars($searchProducts); ?>"
-                onkeyup="filterRows('product-row', this.value)"
-            >
-            <div class="table-actions">
-                <div class="per-page-selector">
-                    <label>Toon:</label>
-                    <select onchange="window.location.href='?per_page='+this.value">
-                        <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
-                        <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
-                        <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
-                        <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
-                    </select>
+            <div class="table-header-right">
+                <input
+                    type="text"
+                    id="productSearch"
+                    class="search-box"
+                    placeholder="Zoeken op naam of klant..."
+                    value="<?php echo htmlspecialchars($searchProducts); ?>"
+                    onkeyup="filterRows('product-row', this.value)">
+                <div class="table-actions">
+                    <div class="per-page-selector">
+                        <label>Toon:</label>
+                        <select onchange="window.location.href='?per_page='+this.value">
+                            <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                            <option value="15" <?php echo $perPage == 15 ? 'selected' : ''; ?>>15</option>
+                            <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                            <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -233,14 +236,14 @@ $cancellationsPage = $cancellationsPage ?? 1;
                 </tr>
             </thead>
             <tbody>
-                        <?php foreach ($products as $product): ?>
-                            <tr class="product-row" data-search="<?php echo strtolower(htmlspecialchars(($product['name'] ?? '') . ' ' . ($product['first_name'] ?? '') . ' ' . ($product['last_name'] ?? ''))); ?>">
-                                <td><?php echo $product['id']; ?></td>
-                                <td><?php echo htmlspecialchars(($product['first_name'] ?? '') . ' ' . ($product['last_name'] ?? '')); ?></td>
-                                <td><?php echo htmlspecialchars($product['name'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($product['type_name'] ?? ''); ?></td>
+                <?php foreach ($products as $product): ?>
+                    <tr class="product-row" data-search="<?php echo strtolower(htmlspecialchars(($product['name'] ?? '') . ' ' . ($product['first_name'] ?? '') . ' ' . ($product['last_name'] ?? ''))); ?>">
+                        <td><?php echo $product['id']; ?></td>
+                        <td><?php echo htmlspecialchars(($product['first_name'] ?? '') . ' ' . ($product['last_name'] ?? '')); ?></td>
+                        <td><?php echo htmlspecialchars($product['name'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($product['type_name'] ?? ''); ?></td>
                         <td><?php echo date('d-m-Y', strtotime($product['expiry_date'])); ?></td>
-                                <td>€<?php echo number_format($product['price'] ?? 0, 2, ',', '.'); ?></td>
+                        <td>€<?php echo number_format($product['price'] ?? 0, 2, ',', '.'); ?></td>
                         <td><span class="badge badge-<?php echo $product['status']; ?>"><?php echo ucfirst($product['status']); ?></span></td>
                         <td>
                             <?php if ($product['status'] === 'active'): ?>
@@ -285,14 +288,14 @@ $cancellationsPage = $cancellationsPage ?? 1;
             </tbody>
         </table>
 
-        <?php 
+        <?php
         // Preserve other pagination states for main products
         $mainParams = [
             'per_page' => $perPage,
             'requests_page' => $requestsPage,
             'cancellations_page' => $cancellationsPage
         ];
-        echo $paginator->render('products.php', $mainParams, 'page'); 
+        echo $paginator->render('products.php', $mainParams, 'page');
         ?>
     </div>
 
