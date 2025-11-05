@@ -87,7 +87,7 @@ $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
                     <td><?php echo date('d-m-Y', strtotime($user['created_at'])); ?></td>
                     <td><?php echo $user['last_login'] ? date('d-m-Y H:i', strtotime($user['last_login'])) : 'Nooit'; ?></td>
                     <td>
-                        <form method="POST" style="display: inline;" onsubmit="return confirm('Weet u zeker dat u deze gebruiker wilt verwijderen?')">
+                        <form method="POST" class="inline-form" onsubmit="return confirm('Weet u zeker dat u deze gebruiker wilt verwijderen?')">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                             <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
@@ -102,7 +102,7 @@ $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
     </div>
 
     <!-- New User Form Modal -->
-    <div id="newUserForm" style="display: none;" class="form-modal">
+    <div id="newUserForm" class="form-modal hidden">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('newUserForm').style.display='none'">&times;</span>
             <h2>Nieuwe Gebruiker Toevoegen</h2>

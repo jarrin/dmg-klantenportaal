@@ -22,7 +22,7 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
 <div class="container">
     <div class="page-header">
         <h1>Mijn Producten (<?php echo $paginator->getTotalItems(); ?>)</h1>
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="flex-gap-center">
             <div class="per-page-selector">
                 <label>Toon:</label>
                 <select onchange="window.location.href='?per_page='+this.value+'&page=1'">

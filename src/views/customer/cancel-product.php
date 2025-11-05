@@ -49,7 +49,7 @@ $pageTitle = 'Product Opzeggen - ' . APP_NAME;
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
-    <div class="dashboard-section" style="max-width: 800px; margin: 0 auto;">
+    <div class="dashboard-section narrow-dashboard">
         <h2>Product Gegevens</h2>
         <div class="product-card">
             <div class="product-header">
@@ -79,29 +79,32 @@ $pageTitle = 'Product Opzeggen - ' . APP_NAME;
             </div>
         </div>
 
-        <div class="alert alert-warning" style="margin-top: 20px;">
+    <div class="alert alert-warning mt-20">
             <strong>Let op:</strong> Door dit product op te zeggen, wordt het aan het einde van de looptijd beëindigd.
             Het product blijft actief tot de verloopdatum.
         </div>
 
-        <h2 style="margin-top: 30px;">Opzegverzoek Indienen</h2>
+    <h2 class="mt-30">Opzegverzoek Indienen</h2>
         <form method="POST" action="">
-            <div class="form-group">
+            <div class="form-group full-width">
                 <label for="reason">Reden voor opzegging *</label>
                 <textarea id="reason" name="reason" rows="6" required
                     placeholder="Geef alstublieft de reden voor opzegging..."></textarea>
                 <small>Deze informatie helpt ons onze dienstverlening te verbeteren</small>
             </div>
 
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" required>
-                    Ik begrijp dat dit product wordt opgezegd per de verloopdatum
-                </label>
+            <div class="form-group full-width">
+                <div class="payment-method-info" style="margin-left: 0;">
+                    <label>
+                        <input type="radio" name="confirm_understand" value="1" required>
+                        Ik begrijp dat dit product wordt opgezegd per de verloopdatum
+                    </label>
+                    <p>Het product blijft actief tot de verloopdatum; er vindt geen vervroegde beëindiging plaats.</p>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-danger">Opzegging Bevestigen</button>
-            <a href="/customer/products.php" class="btn btn-secondary">Annuleren</a>
+            <a href="/views/customer/products.php" class="btn btn-secondary">Annuleren</a>
         </form>
     </div>
 </div>

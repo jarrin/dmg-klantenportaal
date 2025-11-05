@@ -33,7 +33,7 @@ $pageTitle = 'Ticketbeheer - ' . APP_NAME;
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
-    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 30px;">
+    <div class="stats-grid">
         <div class="stat-card">
             <h3><?php echo $stats['total']; ?></h3>
             <p>Totaal Tickets</p>
@@ -91,11 +91,11 @@ $pageTitle = 'Ticketbeheer - ' . APP_NAME;
                         </td>
                         <td><?php echo htmlspecialchars($ticket['subject']); ?></td>
                         <td>
-                            <form method="POST" style="display: inline;">
+                            <form method="POST" class="inline-form">
                                 <input type="hidden" name="action" value="update_status">
                                 <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
                                 <select name="status" onchange="this.form.submit()" class="badge badge-<?php echo $ticket['status']; ?>"
-                                    style="border: none; padding: 4px 8px; cursor: pointer;">
+                                    class="btn-icon">
                                     <option value="new" <?php echo $ticket['status'] === 'new' ? 'selected' : ''; ?>>Nieuw</option>
                                     <option value="in_progress" <?php echo $ticket['status'] === 'in_progress' ? 'selected' : ''; ?>>In behandeling</option>
                                     <option value="closed" <?php echo $ticket['status'] === 'closed' ? 'selected' : ''; ?>>Gesloten</option>
