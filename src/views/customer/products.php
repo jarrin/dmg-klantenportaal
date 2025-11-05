@@ -32,7 +32,7 @@ $pageTitle = 'Mijn Producten - ' . APP_NAME;
                     <option value="48" <?php echo $perPage == 48 ? 'selected' : ''; ?>>48</option>
                 </select>
             </div>
-            <a href="/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
+            <a href="/views/customer/request-product.php" class="btn btn-primary">Nieuw product aanvragen</a>
         </div>
     </div>
     

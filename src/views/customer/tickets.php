@@ -17,7 +17,7 @@ $success = $result['success'];
 $error = $result['error'];
 
 if ($result['redirect']) {
-    header('Location: /customer/ticket-detail.php?id=' . $result['ticketId']);
+    header('Location: /views/customer/ticket-detail.php?id=' . $result['ticketId']);
     exit;
 }
 
