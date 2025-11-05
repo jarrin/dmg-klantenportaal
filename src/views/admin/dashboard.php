@@ -61,7 +61,7 @@ $pageTitle = 'Admin Dashboard - ' . APP_NAME;
                                 <td><?php echo htmlspecialchars($product['first_name'] . ' ' . $product['last_name']); ?></td>
                                 <td><?php echo date('d-m-Y', strtotime($product['expiry_date'])); ?></td>
                                 <td>
-                                    <a href="/admin/products.php?extend=<?php echo $product['id']; ?>" class="btn btn-sm btn-primary">Verlengen</a>
+                                    <a href="/views/admin/products.php?extend=<?php echo $product['id']; ?>" class="btn btn-sm btn-primary">Verlengen</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -74,9 +74,9 @@ $pageTitle = 'Admin Dashboard - ' . APP_NAME;
         <div class="dashboard-section">
             <h2>Snelle Acties</h2>
             <div class="quick-actions">
-                <a href="/admin/users.php?action=new" class="btn btn-primary">Nieuwe gebruiker toevoegen</a>
-                <a href="/admin/products.php?action=new" class="btn btn-primary">Nieuw product toevoegen</a>
-                <a href="/admin/tickets.php" class="btn btn-secondary">Alle tickets bekijken</a>
+                <a href="/views/admin/users.php?action=new" class="btn btn-primary">Nieuwe gebruiker toevoegen</a>
+                <a href="/views/admin/products.php?action=new" class="btn btn-primary">Nieuw product toevoegen</a>
+                <a href="/views/admin/tickets.php" class="btn btn-secondary">Alle tickets bekijken</a>
             </div>
         </div>
     </div>

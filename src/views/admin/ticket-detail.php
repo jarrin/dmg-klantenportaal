@@ -14,7 +14,7 @@ $controller = new TicketDetailController($auth);
 // Handle POST requests
 $result = $controller->handlePost($ticketId);
 if ($result['redirect']) {
-    header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
+    header('Location: /views/admin/ticket-detail.php?id=' . $ticketId . '&success=1');
     exit;
 }
 
@@ -43,7 +43,7 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 <div class="container">
     <div class="page-header">
         <h1>Ticket #<?php echo $ticket['id']; ?>: <?php echo htmlspecialchars($ticket['subject']); ?></h1>
-        <a href="/admin/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
+        <a href="/views/admin/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
     </div>
 
     <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">

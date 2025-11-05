@@ -18,6 +18,9 @@ $error = $result['error'];
 $data = $controller->index();
 extract($data);
 
+// Get search parameter
+$search = trim($_GET['search'] ?? '');
+
 $pageTitle = 'Ticketbeheer - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../../includes/header.php'; ?>
@@ -55,6 +58,14 @@ $pageTitle = 'Ticketbeheer - ' . APP_NAME;
     <div class="table-container">
         <div class="table-header">
             <h2>Alle Tickets (<?php echo $paginator->getTotalItems(); ?>)</h2>
+            <input 
+                type="text" 
+                id="ticketSearch" 
+                class="search-box" 
+                placeholder="Zoeken op onderwerp of klant..." 
+                value="<?php echo htmlspecialchars($search); ?>"
+                onkeyup="filterTickets(this.value)"
+            >
             <div class="table-actions">
                 <div class="per-page-selector">
                     <label>Toon:</label>
@@ -83,7 +94,7 @@ $pageTitle = 'Ticketbeheer - ' . APP_NAME;
             </thead>
             <tbody>
                 <?php foreach ($tickets as $ticket): ?>
-                    <tr>
+                    <tr class="ticket-row" data-search="<?php echo strtolower(htmlspecialchars($ticket['subject'] . ' ' . $ticket['first_name'] . ' ' . $ticket['last_name'] . ' ' . $ticket['email'])); ?>">
                         <td>#<?php echo $ticket['id']; ?></td>
                         <td>
                             <?php echo htmlspecialchars($ticket['first_name'] . ' ' . $ticket['last_name']); ?>
@@ -106,7 +117,7 @@ $pageTitle = 'Ticketbeheer - ' . APP_NAME;
                         <td><?php echo $ticket['message_count']; ?></td>
                         <td><?php echo date('d-m-Y H:i', strtotime($ticket['created_at'])); ?></td>
                         <td>
-                            <a href="/admin/ticket-detail.php?id=<?php echo $ticket['id']; ?>" class="btn btn-sm btn-primary">Bekijken</a>
+                            <a href="/views/admin/ticket-detail.php?id=<?php echo $ticket['id']; ?>" class="btn btn-sm btn-primary">Bekijken</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
