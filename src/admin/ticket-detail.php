@@ -2,80 +2,40 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Ticket.php';
+require_once __DIR__ . '/../controllers/admin/TicketDetailController.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
 
-$ticketModel = new Ticket();
-$adminUserId = $auth->getCurrentUserId();
-
 $ticketId = $_GET['id'] ?? 0;
-$ticket = $ticketModel->getById($ticketId);
 
-if (!$ticket) {
+$controller = new TicketDetailController($auth);
+
+// Handle POST requests
+$result = $controller->handlePost($ticketId);
+if ($result['redirect']) {
+    header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
+    exit;
+}
+
+// Get page data
+$data = $controller->show($ticketId);
+
+if (!$data) {
     header('Location: /admin/tickets.php');
     exit;
 }
 
-$messages = $ticketModel->getMessages($ticketId);
+extract($data);
 
 $success = '';
-$error = '';
+$error = $result['error'];
 
 // Check for success parameter from redirect
 if (isset($_GET['success'])) {
     $success = 'Antwoord succesvol verzonden';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-
-    if ($action === 'reply') {
-        $message = trim($_POST['message'] ?? '');
-
-        if (empty($message)) {
-            $error = 'Vul een bericht in';
-        } else {
-            if ($ticketModel->addMessage($ticketId, $adminUserId, $message, true)) {
-                // Set status to in_progress if it was new
-                if ($ticket['status'] === 'new') {
-                    $ticketModel->updateStatus($ticketId, 'in_progress');
-                }
-                // Redirect to prevent duplicate submission on page refresh (POST-Redirect-GET pattern)
-                header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
-                exit;
-            } else {
-                $error = 'Er is een fout opgetreden bij het verzenden van het antwoord';
-            }
-        }
-    } elseif ($action === 'update_status') {
-        $status = $_POST['status'] ?? '';
-
-        if ($ticketModel->updateStatus($ticketId, $status)) {
-            header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
-            exit;
-        } else {
-            $error = 'Er is een fout opgetreden bij het bijwerken van de status';
-        }
-    } elseif ($action === 'update_priority') {
-        $priority = $_POST['priority'] ?? '';
-
-        // Validate priority value
-        if (!in_array($priority, ['low', 'medium', 'high', 'urgent'])) {
-            $error = 'Ongeldige prioriteit';
-        } else {
-            $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("UPDATE tickets SET priority = ? WHERE id = ?");
-            if ($stmt->execute([$priority, $ticketId])) {
-                header('Location: /admin/ticket-detail.php?id=' . $ticketId . '&success=1');
-                exit;
-            } else {
-                $error = 'Er is een fout opgetreden bij het bijwerken van de prioriteit';
-            }
-        }
-    }
-}
 $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>

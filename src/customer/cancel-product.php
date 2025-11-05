@@ -2,51 +2,35 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Product.php';
+require_once __DIR__ . '/../controllers/customer/CancelProductController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
-$productModel = new Product();
 $userId = $auth->getCurrentUserId();
-
 $productId = $_GET['id'] ?? 0;
-$product = $productModel->getById($productId);
+
+$controller = new CancelProductController($userId);
+
+// Handle POST requests
+$result = $controller->handlePost($productId);
+$success = $result['success'];
+$error = $result['error'];
+
+if ($result['redirect']) {
+    header('Location: /customer/products.php?cancelled=1');
+    exit;
+}
+
+// Get page data
+$product = $controller->show($productId);
 
 // Check if product exists and belongs to user
-if (!$product || $product['user_id'] != $userId) {
+if (!$product) {
     header('Location: /customer/products.php');
     exit;
 }
 
-$success = '';
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $reason = trim($_POST['reason'] ?? '');
-
-    if (empty($reason)) {
-        $error = 'Geef alstublieft een reden op voor de opzegging';
-    } else {
-        try {
-            $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("
-                INSERT INTO cancellation_requests (user_id, product_id, reason, status)
-                VALUES (?, ?, ?, 'pending')
-            ");
-
-            if ($stmt->execute([$userId, $productId, $reason])) {
-                $success = 'Opzegverzoek succesvol ingediend. U ontvangt bericht zodra dit is verwerkt.';
-                header('Location: /customer/products.php?cancelled=1');
-                exit;
-            } else {
-                $error = 'Er is een fout opgetreden bij het indienen van het opzegverzoek';
-            }
-        } catch (Exception $e) {
-            $error = 'Er is een fout opgetreden: ' . $e->getMessage();
-        }
-    }
-}
 $pageTitle = 'Product Opzeggen - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>

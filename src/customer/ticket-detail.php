@@ -2,52 +2,42 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Ticket.php';
+require_once __DIR__ . '/../controllers/customer/TicketDetailController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
-$ticketModel = new Ticket();
 $userId = $auth->getCurrentUserId();
-
 $ticketId = $_GET['id'] ?? 0;
-$ticket = $ticketModel->getById($ticketId);
+
+$controller = new CustomerTicketDetailController($userId);
+
+// Handle POST requests
+$result = $controller->handlePost($ticketId);
+if ($result['redirect']) {
+    header('Location: /customer/ticket-detail.php?id=' . $ticketId . '&success=1');
+    exit;
+}
+
+// Get page data
+$data = $controller->show($ticketId);
 
 // Check if ticket exists and belongs to user
-if (!$ticket || $ticket['user_id'] != $userId) {
+if (!$data) {
     header('Location: /customer/tickets.php');
     exit;
 }
 
-$messages = $ticketModel->getMessages($ticketId);
+extract($data);
 
 $success = '';
-$error = '';
+$error = $result['error'];
 
 // Check for success parameter from redirect
 if (isset($_GET['success'])) {
     $success = 'Bericht succesvol toegevoegd';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $message = trim($_POST['message'] ?? '');
-
-    if (empty($message)) {
-        $error = 'Vul een bericht in';
-    } else {
-        if ($ticketModel->addMessage($ticketId, $userId, $message, false)) {
-            // Reopen ticket if closed
-            if ($ticket['status'] === 'closed') {
-                $ticketModel->updateStatus($ticketId, 'new');
-            }
-            // Redirect to prevent duplicate submission on page refresh (POST-Redirect-GET pattern)
-            header('Location: /customer/ticket-detail.php?id=' . $ticketId . '&success=1');
-            exit;
-        } else {
-            $error = 'Er is een fout opgetreden bij het toevoegen van het bericht';
-        }
-    }
-}
 $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>

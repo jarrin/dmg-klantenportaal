@@ -2,23 +2,18 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Product.php';
-require_once __DIR__ . '/../classes/Ticket.php';
+require_once __DIR__ . '/../controllers/customer/DashboardController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
-$productModel = new Product();
-$ticketModel = new Ticket();
-
 $userId = $auth->getCurrentUserId();
-$products = $productModel->getByUserId($userId);
-$tickets = $ticketModel->getByUserId($userId);
 
-// Count statistics
-$totalProducts = count($products);
-$activeProducts = count(array_filter($products, fn($p) => $p['status'] === 'active'));
-$openTickets = count(array_filter($tickets, fn($t) => $t['status'] !== 'closed'));
+$controller = new CustomerDashboardController($userId);
+
+// Get page data
+$data = $controller->index();
+extract($data);
 
 $pageTitle = 'Dashboard - ' . APP_NAME;
 ?>

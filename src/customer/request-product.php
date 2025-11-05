@@ -2,57 +2,24 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Product.php';
+require_once __DIR__ . '/../controllers/customer/RequestProductController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
-$productModel = new Product();
 $userId = $auth->getCurrentUserId();
 
-$success = '';
-$error = '';
+$controller = new RequestProductController($userId);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $productTypeId = $_POST['product_type_id'] ?? 0;
-    $requestedName = trim($_POST['requested_name'] ?? '');
-    $requestedDomain = trim($_POST['requested_domain'] ?? '');
-    $additionalInfo = trim($_POST['additional_info'] ?? '');
+// Handle POST requests
+$result = $controller->handlePost();
+$success = $result['success'];
+$error = $result['error'];
 
-    if (empty($productTypeId) || empty($requestedName)) {
-        $error = 'Vul alle verplichte velden in';
-    } else {
-        try {
-            $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("
-                INSERT INTO product_requests (user_id, product_type_id, requested_name, requested_domain, additional_info, status)
-                VALUES (?, ?, ?, ?, ?, 'pending')
-            ");
+// Get page data
+$data = $controller->index();
+extract($data);
 
-            if ($stmt->execute([$userId, $productTypeId, $requestedName, $requestedDomain, $additionalInfo])) {
-                $success = 'Product aanvraag succesvol ingediend. U ontvangt bericht zodra deze is verwerkt.';
-            } else {
-                $error = 'Er is een fout opgetreden bij het indienen van de aanvraag';
-            }
-        } catch (Exception $e) {
-            $error = 'Er is een fout opgetreden: ' . $e->getMessage();
-        }
-    }
-}
-
-$productTypes = $productModel->getProductTypes();
-
-// Get user's pending requests
-$db = Database::getInstance()->getConnection();
-$stmt = $db->prepare("
-    SELECT pr.*, pt.name as type_name
-    FROM product_requests pr
-    JOIN product_types pt ON pr.product_type_id = pt.id
-    WHERE pr.user_id = ?
-    ORDER BY pr.created_at DESC
-");
-$stmt->execute([$userId]);
-$requests = $stmt->fetchAll();
 $pageTitle = 'Product Aanvragen - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>

@@ -2,44 +2,16 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/User.php';
-require_once __DIR__ . '/../classes/Product.php';
-require_once __DIR__ . '/../classes/Ticket.php';
-require_once __DIR__ . '/../classes/Paginator.php';
+require_once __DIR__ . '/../controllers/admin/DashboardController.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
 
-$db = Database::getInstance()->getConnection();
-$userModel = new User();
-$productModel = new Product();
-$ticketModel = new Ticket();
+$controller = new DashboardController();
 
-$totalUsers = count($userModel->getAll('customer'));
-$totalProducts = count($productModel->getAll());
-$ticketStats = $ticketModel->getStatistics();
-
-// Pagination for expiring products
-$expiringPage = isset($_GET['expiring_page']) ? max(1, (int)$_GET['expiring_page']) : 1;
-$expiringPerPage = 10;
-
-// Count expiring products
-$countExpiringQuery = "SELECT COUNT(*) FROM products WHERE expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) AND expiry_date >= CURRENT_DATE AND status = 'active'";
-$expiringPaginator = Paginator::fromQuery($db, $countExpiringQuery, [], $expiringPerPage, $expiringPage);
-
-// Get expiring products with pagination
-$stmt = $db->prepare("
-    SELECT p.*, u.first_name, u.last_name 
-    FROM products p 
-    JOIN users u ON p.user_id = u.id 
-    WHERE p.expiry_date <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) 
-    AND p.expiry_date >= CURRENT_DATE 
-    AND p.status = 'active'
-    ORDER BY p.expiry_date ASC 
-    " . $expiringPaginator->getLimitClause()
-);
-$stmt->execute();
-$expiringProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Get page data
+$data = $controller->index();
+extract($data);
 
 $pageTitle = 'Admin Dashboard - ' . APP_NAME;
 ?>

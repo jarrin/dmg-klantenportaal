@@ -2,69 +2,27 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/User.php';
-require_once __DIR__ . '/../classes/Validator.php';
+require_once __DIR__ . '/../controllers/customer/ProfileController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
-$userModel = new User();
 $userId = $auth->getCurrentUserId();
-$user = $userModel->getById($userId);
 
-$success = '';
-$error = '';
+$controller = new ProfileController($auth, $userId);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
+// Handle POST requests
+$result = $controller->handlePost();
+$success = $result['success'];
+$error = $result['error'];
 
-    if ($action === 'update_profile') {
-        $data = [
-            'first_name' => trim($_POST['first_name'] ?? ''),
-            'last_name' => trim($_POST['last_name'] ?? ''),
-            'company_name' => trim($_POST['company_name'] ?? ''),
-            'address' => trim($_POST['address'] ?? ''),
-            'postal_code' => trim($_POST['postal_code'] ?? ''),
-            'city' => trim($_POST['city'] ?? ''),
-            'phone' => trim($_POST['phone'] ?? '')
-        ];
-
-        if (empty($data['first_name']) || empty($data['last_name'])) {
-            $error = 'Voornaam en achternaam zijn verplicht';
-        } elseif (!Validator::validateUser($data, true)) {
-            $error = Validator::getFirstError();
-        } else {
-            if ($userModel->update($userId, $data)) {
-                $success = 'Profiel succesvol bijgewerkt';
-                $user = $userModel->getById($userId);
-                $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
-            } else {
-                $error = 'Er is een fout opgetreden bij het bijwerken van uw profiel';
-            }
-        }
-    } elseif ($action === 'change_password') {
-        $currentPassword = $_POST['current_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-
-        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-            $error = 'Vul alle wachtwoordvelden in';
-        } elseif ($newPassword !== $confirmPassword) {
-            $error = 'De nieuwe wachtwoorden komen niet overeen';
-        } elseif (strlen($newPassword) < 6) {
-            $error = 'Het wachtwoord moet minimaal 6 tekens lang zijn';
-        } elseif (!password_verify($currentPassword, $user['password'])) {
-            $error = 'Het huidige wachtwoord is onjuist';
-        } else {
-            $hashedPassword = $auth->hashPassword($newPassword);
-            if ($userModel->updatePassword($userId, $hashedPassword)) {
-                $success = 'Wachtwoord succesvol gewijzigd';
-            } else {
-                $error = 'Er is een fout opgetreden bij het wijzigen van het wachtwoord';
-            }
-        }
-    }
+// Update user if profile was updated
+if ($result['user']) {
+    $user = $result['user'];
+} else {
+    $user = $controller->show();
 }
+
 $pageTitle = 'Mijn Profiel - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>

@@ -2,59 +2,28 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Ticket.php';
-require_once __DIR__ . '/../classes/Paginator.php';
+require_once __DIR__ . '/../controllers/customer/TicketsController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
-$ticketModel = new Ticket();
 $userId = $auth->getCurrentUserId();
-$db = Database::getInstance()->getConnection();
 
-$success = '';
-$error = '';
+$controller = new CustomerTicketsController($userId);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $subject = trim($_POST['subject'] ?? '');
-    $message = trim($_POST['message'] ?? '');
+// Handle POST requests
+$result = $controller->handlePost();
+$success = $result['success'];
+$error = $result['error'];
 
-    // Customer tickets have default priority, no user input
-    $priority = 'medium';
-
-    if (empty($subject) || empty($message)) {
-        $error = 'Vul alle verplichte velden in';
-    } else {
-        try {
-            $ticketId = $ticketModel->create($userId, $subject, $message, $priority);
-            $success = 'Ticket succesvol aangemaakt';
-            header('Location: /customer/ticket-detail.php?id=' . $ticketId);
-            exit;
-        } catch (Exception $e) {
-            $error = 'Er is een fout opgetreden bij het aanmaken van het ticket';
-        }
-    }
+if ($result['redirect']) {
+    header('Location: /customer/ticket-detail.php?id=' . $result['ticketId']);
+    exit;
 }
 
-// Pagination setup
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 10;
-
-// Count total tickets for this user
-$countQuery = "SELECT COUNT(*) FROM tickets WHERE user_id = ?";
-$paginator = Paginator::fromQuery($db, $countQuery, [$userId], $perPage, $page);
-
-// Get tickets with pagination
-$stmt = $db->prepare("
-    SELECT t.*, 
-           (SELECT COUNT(*) FROM ticket_messages WHERE ticket_id = t.id) as message_count
-    FROM tickets t
-    WHERE t.user_id = ?
-    ORDER BY t.created_at DESC
-    " . $paginator->getLimitClause()
-);
-$stmt->execute([$userId]);
-$tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Get page data
+$data = $controller->index();
+extract($data);
 
 $pageTitle = 'Tickets - ' . APP_NAME;
 ?>

@@ -2,98 +2,21 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/User.php';
-require_once __DIR__ . '/../classes/Validator.php';
-require_once __DIR__ . '/../classes/Paginator.php';
+require_once __DIR__ . '/../controllers/admin/UsersController.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
 
-$userModel = new User();
-$db = Database::getInstance()->getConnection();
+$controller = new UsersController($auth);
 
-$success = '';
-$error = '';
+// Handle POST requests
+$result = $controller->handlePost();
+$success = $result['success'];
+$error = $result['error'];
 
-// Handle user actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-
-    if ($action === 'create') {
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $firstName = trim($_POST['first_name'] ?? '');
-        $lastName = trim($_POST['last_name'] ?? '');
-        $companyName = trim($_POST['company_name'] ?? '');
-        $address = trim($_POST['address'] ?? '');
-        $postalCode = trim($_POST['postal_code'] ?? '');
-        $city = trim($_POST['city'] ?? '');
-        $phone = trim($_POST['phone'] ?? '');
-
-        // Validate required fields first
-        if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) {
-            $error = 'Vul alle verplichte velden in';
-        } else {
-            // Prepare data for validation
-            $validateData = [
-                'email' => $email,
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'company_name' => $companyName,
-                'address' => $address,
-                'postal_code' => $postalCode,
-                'city' => $city,
-                'phone' => $phone
-            ];
-
-            // Run validation
-            if (!Validator::validateUser($validateData, false)) {
-                $error = Validator::getFirstError();
-            } elseif ($userModel->emailExists($email)) {
-                $error = 'Dit e-mailadres is al in gebruik';
-            } else {
-                $data = [
-                    'email' => $email,
-                    'password' => $auth->hashPassword($password),
-                    'first_name' => $firstName,
-                    'last_name' => $lastName,
-                    'company_name' => $companyName,
-                    'address' => $address,
-                    'postal_code' => $postalCode,
-                    'city' => $city,
-                    'phone' => $phone,
-                    'role' => 'customer'
-                ];
-
-                if ($userModel->create($data)) {
-                    $success = 'Gebruiker succesvol aangemaakt';
-                } else {
-                    $error = 'Er is een fout opgetreden bij het aanmaken van de gebruiker';
-                }
-            }
-        }
-    } elseif ($action === 'delete') {
-        $userId = $_POST['user_id'] ?? 0;
-        if ($userModel->delete($userId)) {
-            $success = 'Gebruiker succesvol verwijderd';
-        } else {
-            $error = 'Er is een fout opgetreden bij het verwijderen van de gebruiker';
-        }
-    }
-}
-
-// Pagination setup
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 15;
-
-// Count total users
-$countQuery = "SELECT COUNT(*) FROM users WHERE role = 'customer'";
-$paginator = Paginator::fromQuery($db, $countQuery, [], $perPage, $page);
-
-// Get users with pagination
-$stmt = $db->prepare("SELECT * FROM users WHERE role = 'customer' ORDER BY created_at DESC " . $paginator->getLimitClause());
-$stmt->execute();
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Get page data
+$data = $controller->index();
+extract($data);
 
 $pageTitle = 'Gebruikersbeheer - ' . APP_NAME;
 ?>

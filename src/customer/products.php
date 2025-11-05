@@ -2,35 +2,18 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Product.php';
-require_once __DIR__ . '/../classes/Paginator.php';
+require_once __DIR__ . '/../controllers/customer/ProductsController.php';
 
 $auth = new Auth();
 $auth->requireCustomer();
 
-$productModel = new Product();
 $userId = $auth->getCurrentUserId();
-$db = Database::getInstance()->getConnection();
 
-// Pagination setup
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 12;
+$controller = new CustomerProductsController($userId);
 
-// Count total products for this user
-$countQuery = "SELECT COUNT(*) FROM products WHERE user_id = ?";
-$paginator = Paginator::fromQuery($db, $countQuery, [$userId], $perPage, $page);
-
-// Get products with pagination
-$stmt = $db->prepare("
-    SELECT p.*, pt.name as type_name
-    FROM products p
-    LEFT JOIN product_types pt ON p.product_type_id = pt.id
-    WHERE p.user_id = ?
-    ORDER BY p.created_at DESC
-    " . $paginator->getLimitClause()
-);
-$stmt->execute([$userId]);
-$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Get page data
+$data = $controller->index();
+extract($data);
 
 $pageTitle = 'Mijn Producten - ' . APP_NAME;
 ?>

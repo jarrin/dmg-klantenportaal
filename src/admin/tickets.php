@@ -2,64 +2,22 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../classes/Ticket.php';
-require_once __DIR__ . '/../classes/Paginator.php';
+require_once __DIR__ . '/../controllers/admin/TicketsController.php';
 
 $auth = new Auth();
 $auth->requireAdmin();
 
-$ticketModel = new Ticket();
-$db = Database::getInstance()->getConnection();
+$controller = new TicketsController();
 
-$success = '';
-$error = '';
+// Handle POST requests
+$result = $controller->handlePost();
+$success = $result['success'];
+$error = $result['error'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
+// Get page data
+$data = $controller->index();
+extract($data);
 
-    if ($action === 'update_status') {
-        $ticketId = $_POST['ticket_id'] ?? 0;
-        $status = $_POST['status'] ?? '';
-
-        if ($ticketModel->updateStatus($ticketId, $status)) {
-            $success = 'Ticket status bijgewerkt';
-        } else {
-            $error = 'Er is een fout opgetreden bij het bijwerken van de status';
-        }
-    }
-}
-
-// Pagination setup
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$perPage = isset($_GET['per_page']) ? max(5, min(100, (int)$_GET['per_page'])) : 15;
-
-// Count total tickets
-$countQuery = "SELECT COUNT(*) FROM tickets";
-$paginator = Paginator::fromQuery($db, $countQuery, [], $perPage, $page);
-
-// Get tickets with pagination
-$stmt = $db->prepare("
-    SELECT 
-        t.*, 
-        u.first_name, 
-        u.last_name, 
-        u.email,
-        (SELECT COUNT(*) FROM ticket_messages WHERE ticket_id = t.id) as message_count
-    FROM tickets t
-    LEFT JOIN users u ON t.user_id = u.id
-    ORDER BY 
-        CASE 
-            WHEN t.status = 'new' THEN 1
-            WHEN t.status = 'in_progress' THEN 2
-            WHEN t.status = 'closed' THEN 3
-        END,
-        t.created_at DESC
-    " . $paginator->getLimitClause()
-);
-$stmt->execute();
-$tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stats = $ticketModel->getStatistics();
 $pageTitle = 'Ticketbeheer - ' . APP_NAME;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
