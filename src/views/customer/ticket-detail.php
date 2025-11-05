@@ -15,7 +15,7 @@ $controller = new CustomerTicketDetailController($userId);
 // Handle POST requests
 $result = $controller->handlePost($ticketId);
 if ($result['redirect']) {
-    header('Location: /customer/ticket-detail.php?id=' . $ticketId . '&success=1');
+    header('Location: /views/customer/ticket-detail.php?id=' . $ticketId . '&success=1');
     exit;
 }
 
@@ -24,7 +24,7 @@ $data = $controller->show($ticketId);
 
 // Check if ticket exists and belongs to user
 if (!$data) {
-    header('Location: /customer/tickets.php');
+    header('Location: /views/customer/tickets.php');
     exit;
 }
 
@@ -45,7 +45,7 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
 <div class="container">
     <div class="page-header">
         <h1>Ticket #<?php echo $ticket['id']; ?>: <?php echo htmlspecialchars($ticket['subject']); ?></h1>
-        <a href="/customer/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
+        <a href="/views/customer/tickets.php" class="btn btn-secondary">Terug naar overzicht</a>
     </div>
 
     <div class="stats-grid ticket-stats-grid">
