@@ -127,7 +127,6 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
             </div>
             <button type="submit" class="btn btn-primary">Antwoord Verzenden</button>
         </form>
-        </form>
     </div>
 </div>
 

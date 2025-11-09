@@ -100,13 +100,22 @@ function toggleDirectDebit() {
 
 toggleDirectDebit();
 
-document.querySelector('form').addEventListener('submit', function (e) {
-    const directDebit = document.querySelector('input[name="payment_method"][value="direct_debit"]').checked;
-    if (directDebit) {
-        const signatureData = document.getElementById('signature_data').value;
-        if (!signatureData) {
-            e.preventDefault();
-            alert('Handtekening is verplicht voor automatisch incasso. Teken uw handtekening alstublieft.');
-        }
+// Only attach the payment/signature submit guard if the payment form elements exist on the page.
+const paymentMethodInput = document.querySelector('input[name="payment_method"][value="direct_debit"]');
+const signatureField = document.getElementById('signature_data');
+if (paymentMethodInput && signatureField) {
+    // Find the closest form that contains the payment fields (better than binding to the first form)
+    const paymentForm = paymentMethodInput.closest('form') || document.querySelector('form');
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', function (e) {
+            const directDebit = document.querySelector('input[name="payment_method"][value="direct_debit"]').checked;
+            if (directDebit) {
+                const signatureData = document.getElementById('signature_data').value;
+                if (!signatureData) {
+                    e.preventDefault();
+                    alert('Handtekening is verplicht voor automatisch incasso. Teken uw handtekening alstublieft.');
+                }
+            }
+        });
     }
-});
+}

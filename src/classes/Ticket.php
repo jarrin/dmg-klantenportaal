@@ -80,8 +80,155 @@ class Ticket {
             INSERT INTO ticket_messages (ticket_id, user_id, message, is_staff_reply) 
             VALUES (?, ?, ?, ?)
         ");
-        return $stmt->execute([$ticketId, $userId, $message, $isStaffReply ? 1 : 0]);
+            $result = $stmt->execute([$ticketId, $userId, $message, $isStaffReply ? 1 : 0]);
+
+            // If the message was posted by staff, try to notify the customer by email.
+            if ($result && $isStaffReply) {
+                // best-effort: attempt to send email but don't break the DB operation if mail fails
+                try {
+                    $this->sendEmailToCustomer($ticketId, $userId, $message);
+                } catch (Exception $e) {
+                    // Could log the exception to a logger/file in future. For now, swallow to avoid breaking flow.
+                }
+            }
+
+            return $result;
     }
+
+        /**
+         * Send a notification email to the ticket owner when staff replies.
+         * This is a best-effort helper that uses PHP's mail() and the MAIL_* constants from config.
+         *
+         * @param int $ticketId
+         * @param int $staffUserId
+         * @param string $message
+         * @return bool
+         */
+        private function sendEmailToCustomer($ticketId, $staffUserId, $message) {
+            // Get ticket (includes customer name and email)
+            $ticket = $this->getById($ticketId);
+            if (!$ticket || empty($ticket['email'])) {
+                return false;
+            }
+
+            // Try to fetch staff name/email for Reply-To
+            $stmt = $this->db->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
+            $stmt->execute([$staffUserId]);
+            $staff = $stmt->fetch();
+
+            $to = $ticket['email'];
+            $subject = 'Re: Ticket #' . $ticketId . ' - ' . $ticket['subject'];
+            $ticketUrl = rtrim(APP_URL, '/') . '/customer/ticket-detail.php?id=' . $ticketId;
+
+            // Build simple HTML email
+            $customerName = !empty($ticket['first_name']) ? htmlspecialchars($ticket['first_name']) : '';
+            $staffName = $staff ? htmlspecialchars(trim($staff['first_name'] . ' ' . $staff['last_name'])) : MAIL_FROM_NAME;
+            $safeMessage = nl2br(htmlspecialchars($message));
+
+            $body = "<html><body>";
+            $body .= "<p>Beste {$customerName},</p>";
+            $body .= "<p>Er is een antwoord geplaatst op uw ticket <strong>#{$ticketId}</strong> (" . htmlspecialchars($ticket['subject']) . "):</p>";
+            $body .= "<div style=\"border-left:4px solid #ccc;padding-left:8px;margin:8px 0;\">{$safeMessage}</div>";
+            $body .= "<p>U kunt het ticket bekijken via: <a href=\"{$ticketUrl}\">{$ticketUrl}</a></p>";
+            $body .= "<p>Met vriendelijke groet,<br>" . $staffName . "</p>";
+            $body .= "</body></html>";
+
+            $headers = "MIME-Version: 1.0\r\n";
+            $headers .= "Content-type: text/html; charset=utf-8\r\n";
+            $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM_ADDRESS . ">\r\n";
+            $headers .= "Reply-To: " . ($staff && !empty($staff['email']) ? $staff['email'] : MAIL_FROM_ADDRESS) . "\r\n";
+
+            // Prefer PHPMailer with SMTP when available and configured.
+            $composerAutoload = dirname(__DIR__, 2) . '/vendor/autoload.php';
+            if (MAIL_USE_SMTP && file_exists($composerAutoload)) {
+                try {
+                    require_once $composerAutoload;
+
+                    // Dynamically instantiate PHPMailer to avoid static analyzer errors when
+                    // the package isn't installed in the environment.
+                    $phPMailerClass = '\\PHPMailer\\PHPMailer\\PHPMailer';
+                    if (class_exists($phPMailerClass)) {
+                        $mail = new $phPMailerClass(true);
+
+                        // Prepare debug capture
+                        $debugLines = [];
+                        $mail->SMTPDebug = 2;
+                        $mail->Debugoutput = function($str, $level) use (&$debugLines) {
+                            $debugLines[] = trim($str);
+                        };
+
+                        // Server settings
+                        $mail->isSMTP();
+                        $mail->Host = SMTP_HOST;
+                        // Only enable SMTPAuth when credentials are provided
+                        $mail->SMTPAuth = !empty(SMTP_USER);
+                        if ($mail->SMTPAuth) {
+                            $mail->Username = SMTP_USER;
+                            $mail->Password = SMTP_PASS;
+                        }
+
+                        // Respect explicit SMTP_SECURE. If empty, disable automatic STARTTLS
+                        $secure = SMTP_SECURE ?: '';
+                        $mail->SMTPSecure = $secure;
+                        if (empty($secure)) {
+                            // Prevent PHPMailer from attempting STARTTLS when server doesn't support it (eg. MailHog)
+                            $mail->SMTPAutoTLS = false;
+                        }
+
+                        $mail->Port = (int)SMTP_PORT ?: 587;
+
+                        // Recipients
+                        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
+                        // Ensure envelope sender is set explicitly (helps some SMTP providers and SPF checks)
+                        $mail->Sender = MAIL_FROM_ADDRESS;
+                        $mail->addAddress($to, $customerName);
+                        if ($staff && !empty($staff['email'])) {
+                            $mail->addReplyTo($staff['email'], $staffName);
+                        }
+
+                        // Content
+                        $mail->isHTML(true);
+                        $mail->Subject = $subject;
+                        $mail->Body = $body;
+
+                        $sent = false;
+                        try {
+                            $sent = $mail->send();
+                        } catch (\Throwable $e) {
+                            $debugLines[] = 'PHPMailer exception: ' . $e->getMessage();
+                        }
+
+                        // write debug to log file
+                        $logPath = dirname(__DIR__) . '/logs/mail.log';
+                        $logEntry = date('c') . " | PHPMailer | to={$to} | subject=" . str_replace(["\\r","\\n"], ['',''], $subject) . " | sent=" . ($sent ? '1' : '0') . "\n";
+                        if (!empty($debugLines)) {
+                            $logEntry .= "DEBUG:\n" . implode("\n", $debugLines) . "\n";
+                        }
+                        @file_put_contents($logPath, $logEntry . "\n", FILE_APPEND | LOCK_EX);
+
+                        return $sent;
+                    }
+                } catch (\Throwable $e) {
+                    // PHPMailer not available or SMTP failed — fallback to mail()
+                }
+            }
+
+            // Fallback: use PHP mail() as best-effort
+            $ok = mail($to, $subject, $body, $headers);
+
+            // log mail() result
+            $logPath = dirname(__DIR__) . '/logs/mail.log';
+            $logEntry = date('c') . " | mail() | to={$to} | subject=" . str_replace(["\\r","\\n"], ['',''], $subject) . " | sent=" . ($ok ? '1' : '0') . "\n";
+            if (!$ok) {
+                $last = error_get_last();
+                if ($last && !empty($last['message'])) {
+                    $logEntry .= "ERROR: " . $last['message'] . "\n";
+                }
+            }
+            @file_put_contents($logPath, $logEntry . "\n", FILE_APPEND | LOCK_EX);
+
+            return $ok;
+        }
     
     public function getMessages($ticketId) {
         $stmt = $this->db->prepare("
