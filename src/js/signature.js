@@ -1,22 +1,29 @@
-const canvas = document.getElementById('signatureCanvas');
-const ctx = canvas ? canvas.getContext('2d') : null;
+let canvas = null;
+let ctx = null;
 let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
 
-if (canvas) {
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseout', stopDrawing);
+function initializeCanvas() {
+    if (canvas === null) {
+        canvas = document.getElementById('signatureCanvas');
+        if (canvas) {
+            ctx = canvas.getContext('2d');
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
 
-    // Touch support
-    canvas.addEventListener('touchstart', handleTouch);
-    canvas.addEventListener('touchmove', handleTouch);
-    canvas.addEventListener('touchend', stopDrawing);
+            // Touch support
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+    }
 }
 
 function startDrawing(e) {
+    if (!canvas) initializeCanvas();
     isDrawing = true;
     const rect = canvas.getBoundingClientRect();
     lastX = e.clientX - rect.left;
@@ -24,7 +31,7 @@ function startDrawing(e) {
 }
 
 function draw(e) {
-    if (!isDrawing) return;
+    if (!isDrawing || !canvas) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -61,8 +68,11 @@ function stopDrawing() {
 }
 
 function clearSignature() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    document.getElementById('signature_data').value = '';
+    if (!canvas) initializeCanvas();
+    if (canvas && ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('signature_data').value = '';
+    }
 }
 
 function formatIban(input) {
@@ -86,17 +96,23 @@ function toggleDirectDebit() {
     if (directDebit) {
         fields.classList.add('active');
         // Make fields required
-        document.getElementById('iban').required = true;
-        document.getElementById('account_holder_name').required = true;
-        document.getElementById('mandate_date').required = true;
+        if (document.getElementById('iban')) document.getElementById('iban').required = true;
+        if (document.getElementById('account_holder_name')) document.getElementById('account_holder_name').required = true;
+        if (document.getElementById('mandate_date')) document.getElementById('mandate_date').required = true;
     } else {
         fields.classList.remove('active');
         // Make fields optional
-        document.getElementById('iban').required = false;
-        document.getElementById('account_holder_name').required = false;
-        document.getElementById('mandate_date').required = false;
+        if (document.getElementById('iban')) document.getElementById('iban').required = false;
+        if (document.getElementById('account_holder_name')) document.getElementById('account_holder_name').required = false;
+        if (document.getElementById('mandate_date')) document.getElementById('mandate_date').required = false;
     }
 }
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCanvas();
+    toggleDirectDebit();
+});
 
 toggleDirectDebit();
 

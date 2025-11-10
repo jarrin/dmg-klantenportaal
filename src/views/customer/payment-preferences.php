@@ -65,7 +65,7 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
                 </div>
             </div>
 
-            <div id="directDebitFields" class="direct-debit-fields full-width <?php echo ($preferences && $preferences['payment_method'] === 'direct_debit') ? 'active' : ''; ?>">
+            <div id="directDebitFields" class="direct-debit-fields full-width active">
                 <h3>Incasso Mandaat</h3>
                 <p>Vul de onderstaande gegevens in voor het SEPA incasso mandaat:</p>
 
@@ -132,4 +132,4 @@ $pageTitle = 'Betaalvoorkeuren - ' . APP_NAME;
 </div>
 <?php include __DIR__ . '/../../includes/footer.php'; ?>
 </div>
-<script src="../js/signature.js"></script>
+<script src="../../js/signature.js"></script>
