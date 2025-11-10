@@ -133,101 +133,93 @@ class Ticket {
             $body .= "<p>Met vriendelijke groet,<br>" . $staffName . "</p>";
             $body .= "</body></html>";
 
+            // Try SendGrid API first
+            $apiKey = getenv('SENDGRID_API_KEY');
+            if (!empty($apiKey)) {
+                $result = $this->sendViaSendGridAPI($to, $subject, $body, $customerName);
+                if ($result) {
+                    return true;
+                }
+                // API failed, fall through to mail()
+            }
+
+            // Fallback: use PHP mail()
             $headers = "MIME-Version: 1.0\r\n";
             $headers .= "Content-type: text/html; charset=utf-8\r\n";
             $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM_ADDRESS . ">\r\n";
             $headers .= "Reply-To: " . ($staff && !empty($staff['email']) ? $staff['email'] : MAIL_FROM_ADDRESS) . "\r\n";
 
-            // Prefer PHPMailer with SMTP when available and configured.
-            $composerAutoload = dirname(__DIR__, 2) . '/vendor/autoload.php';
-            if (MAIL_USE_SMTP && file_exists($composerAutoload)) {
-                try {
-                    require_once $composerAutoload;
-
-                    // Dynamically instantiate PHPMailer to avoid static analyzer errors when
-                    // the package isn't installed in the environment.
-                    $phPMailerClass = '\\PHPMailer\\PHPMailer\\PHPMailer';
-                    if (class_exists($phPMailerClass)) {
-                        $mail = new $phPMailerClass(true);
-
-                        // Prepare debug capture
-                        $debugLines = [];
-                        $mail->SMTPDebug = 2;
-                        $mail->Debugoutput = function($str, $level) use (&$debugLines) {
-                            $debugLines[] = trim($str);
-                        };
-
-                        // Server settings
-                        $mail->isSMTP();
-                        $mail->Host = SMTP_HOST;
-                        // Only enable SMTPAuth when credentials are provided
-                        $mail->SMTPAuth = !empty(SMTP_USER);
-                        if ($mail->SMTPAuth) {
-                            $mail->Username = SMTP_USER;
-                            $mail->Password = SMTP_PASS;
-                        }
-
-                        // Respect explicit SMTP_SECURE. If empty, disable automatic STARTTLS
-                        $secure = SMTP_SECURE ?: '';
-                        $mail->SMTPSecure = $secure;
-                        if (empty($secure)) {
-                            // Prevent PHPMailer from attempting STARTTLS when server doesn't support it (eg. MailHog)
-                            $mail->SMTPAutoTLS = false;
-                        }
-
-                        $mail->Port = (int)SMTP_PORT ?: 587;
-
-                        // Recipients
-                        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-                        // Ensure envelope sender is set explicitly (helps some SMTP providers and SPF checks)
-                        $mail->Sender = MAIL_FROM_ADDRESS;
-                        $mail->addAddress($to, $customerName);
-                        if ($staff && !empty($staff['email'])) {
-                            $mail->addReplyTo($staff['email'], $staffName);
-                        }
-
-                        // Content
-                        $mail->isHTML(true);
-                        $mail->Subject = $subject;
-                        $mail->Body = $body;
-
-                        $sent = false;
-                        try {
-                            $sent = $mail->send();
-                        } catch (\Throwable $e) {
-                            $debugLines[] = 'PHPMailer exception: ' . $e->getMessage();
-                        }
-
-                        // write debug to log file
-                        $logPath = dirname(__DIR__) . '/logs/mail.log';
-                        $logEntry = date('c') . " | PHPMailer | to={$to} | subject=" . str_replace(["\\r","\\n"], ['',''], $subject) . " | sent=" . ($sent ? '1' : '0') . "\n";
-                        if (!empty($debugLines)) {
-                            $logEntry .= "DEBUG:\n" . implode("\n", $debugLines) . "\n";
-                        }
-                        @file_put_contents($logPath, $logEntry . "\n", FILE_APPEND | LOCK_EX);
-
-                        return $sent;
-                    }
-                } catch (\Throwable $e) {
-                    // PHPMailer not available or SMTP failed — fallback to mail()
-                }
-            }
-
-            // Fallback: use PHP mail() as best-effort
-            $ok = mail($to, $subject, $body, $headers);
+            $ok = @mail($to, $subject, $body, $headers);
 
             // log mail() result
             $logPath = dirname(__DIR__) . '/logs/mail.log';
-            $logEntry = date('c') . " | mail() | to={$to} | subject=" . str_replace(["\\r","\\n"], ['',''], $subject) . " | sent=" . ($ok ? '1' : '0') . "\n";
-            if (!$ok) {
-                $last = error_get_last();
-                if ($last && !empty($last['message'])) {
-                    $logEntry .= "ERROR: " . $last['message'] . "\n";
-                }
-            }
+            $logEntry = date('c') . " | mail() fallback | to={$to} | subject=" . str_replace(["\\r","\\n"], ['',''], $subject) . " | sent=" . ($ok ? '1' : '0') . "\n";
             @file_put_contents($logPath, $logEntry . "\n", FILE_APPEND | LOCK_EX);
 
             return $ok;
+        }
+
+        /**
+         * Send email via SendGrid REST API (fast, non-blocking).
+         */
+        private function sendViaSendGridAPI($to, $subject, $body, $customerName) {
+            $apiKey = getenv('SENDGRID_API_KEY');
+            if (empty($apiKey)) {
+                // API key niet gevonden - log en return false
+                $logPath = dirname(__DIR__) . '/logs/mail.log';
+                $logEntry = date('c') . " | SendGrid API | ERROR: SENDGRID_API_KEY not set | to={$to}\n";
+                @file_put_contents($logPath, $logEntry . "\n", FILE_APPEND | LOCK_EX);
+                return false;
+            }
+
+            $fromEmail = MAIL_FROM_ADDRESS;
+            $fromName = MAIL_FROM_NAME;
+
+            $data = [
+                'personalizations' => [
+                    [
+                        'to' => [['email' => $to, 'name' => $customerName]],
+                        'subject' => $subject
+                    ]
+                ],
+                'from' => ['email' => $fromEmail, 'name' => $fromName],
+                'content' => [
+                    ['type' => 'text/html', 'value' => $body]
+                ]
+            ];
+
+            $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $apiKey,
+                'Content-Type: application/json'
+            ]);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            $success = ($httpCode === 202);
+
+            // Log result met volledige debug info
+            $logPath = dirname(__DIR__) . '/logs/mail.log';
+            $logEntry = date('c') . " | SendGrid API | from={$fromEmail} | to={$to} | http_code={$httpCode} | sent=" . ($success ? '1' : '0');
+            if (!empty($curlError)) {
+                $logEntry .= " | curl_error={$curlError}";
+            }
+            if (!$success && !empty($response)) {
+                $logEntry .= " | response=" . substr($response, 0, 300);
+            }
+            $logEntry .= "\n";
+            @file_put_contents($logPath, $logEntry . "\n", FILE_APPEND | LOCK_EX);
+
+            return $success;
         }
     
     public function getMessages($ticketId) {
