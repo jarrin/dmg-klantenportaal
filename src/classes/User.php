@@ -77,7 +77,18 @@ class User {
     
     public function updatePassword($id, $newPassword) {
         $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
-        return $stmt->execute([$newPassword, $id]);
+        $result = $stmt->execute([$newPassword, $id]);
+        
+        // Notify admins about password change
+        if ($result) {
+            try {
+                $this->sendEmailToAdminPasswordChange($id);
+            } catch (Exception $e) {
+                // Swallow exception
+            }
+        }
+        
+        return $result;
     }
     
     public function delete($id) {
@@ -132,6 +143,44 @@ class User {
         $body .= "</body></html>";
         
         $subject = 'Klantgegevens bijgewerkt: ' . $userName;
+        
+        foreach ($admins as $admin) {
+            try {
+                $this->sendEmailViaSendGrid($admin['email'], $subject, $body, $admin['first_name']);
+            } catch (Exception $e) {
+                // Continue
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Send email to admins when a customer changes their password
+     */
+    private function sendEmailToAdminPasswordChange($userId) {
+        $user = $this->getById($userId);
+        if (!$user || $user['role'] !== 'customer') {
+            return false;
+        }
+        
+        $stmt = $this->db->prepare("SELECT email, first_name FROM users WHERE role = 'admin' AND active = 1");
+        $stmt->execute();
+        $admins = $stmt->fetchAll();
+        
+        if (empty($admins)) {
+            return false;
+        }
+        
+        $userName = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+        
+        $body = "<html><body>";
+        $body .= "<p>Beste beheerder,</p>";
+        $body .= "<p>Klant <strong>" . $userName . "</strong> (ID: " . $userId . ") heeft hun wachtwoord gewijzigd.</p>";
+        $body .= "<p>Met vriendelijke groet,<br>DMG Klantportaal</p>";
+        $body .= "</body></html>";
+        
+        $subject = 'Wachtwoord gewijzigd: ' . $userName;
         
         foreach ($admins as $admin) {
             try {
