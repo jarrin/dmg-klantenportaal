@@ -38,6 +38,15 @@ class RequestProductController
                 ");
 
                 if ($stmt->execute([$this->userId, $productTypeId, $requestedName, $requestedDomain, $additionalInfo])) {
+                    $requestId = $this->db->lastInsertId();
+                    
+                    // Notify admins about product request
+                    try {
+                        $this->sendEmailToAdminProductRequest($requestId, $productTypeId, $requestedName, $requestedDomain, $additionalInfo);
+                    } catch (Exception $e) {
+                        // Swallow exception
+                    }
+                    
                     $result['success'] = 'Product aanvraag succesvol ingediend. U ontvangt bericht zodra deze is verwerkt.';
                 } else {
                     $result['error'] = 'Er is een fout opgetreden bij het indienen van de aanvraag';
@@ -68,5 +77,106 @@ class RequestProductController
         $data['requests'] = $stmt->fetchAll();
 
         return $data;
+    }
+
+    /**
+     * Send email to admins when a product is requested
+     */
+    private function sendEmailToAdminProductRequest($requestId, $productTypeId, $requestedName, $requestedDomain, $additionalInfo)
+    {
+        $stmt = $this->db->prepare("SELECT email, first_name FROM users WHERE role = 'admin' AND active = 1");
+        $stmt->execute();
+        $admins = $stmt->fetchAll();
+        
+        if (empty($admins)) {
+            return false;
+        }
+        
+        // Get user info
+        $userStmt = $this->db->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+        $userStmt->execute([$this->userId]);
+        $user = $userStmt->fetch();
+        
+        if (!$user) {
+            return false;
+        }
+        
+        // Get product type name
+        $typeStmt = $this->db->prepare("SELECT name FROM product_types WHERE id = ?");
+        $typeStmt->execute([$productTypeId]);
+        $type = $typeStmt->fetch();
+        
+        $userName = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+        $typeName = $type ? htmlspecialchars($type['name']) : 'Onbekend';
+        $productName = htmlspecialchars($requestedName);
+        $domain = !empty($requestedDomain) ? htmlspecialchars($requestedDomain) : 'Niet opgegeven';
+        $info = !empty($additionalInfo) ? nl2br(htmlspecialchars($additionalInfo)) : 'Geen';
+        
+        $body = "<html><body>";
+        $body .= "<p>Beste beheerder,</p>";
+        $body .= "<p>Klant <strong>" . $userName . "</strong> heeft een product aangevraagd:</p>";
+        $body .= "<p><strong>Type:</strong> " . $typeName . "</p>";
+        $body .= "<p><strong>Productnaam:</strong> " . $productName . "</p>";
+        $body .= "<p><strong>Domeinnaam:</strong> " . $domain . "</p>";
+        $body .= "<p><strong>Aanvullende informatie:</strong><br>" . $info . "</p>";
+        $body .= "<p>Met vriendelijke groet,<br>DMG Klantportaal</p>";
+        $body .= "</body></html>";
+        
+        $subject = 'Product aangevraagd: ' . $productName . ' door ' . $userName;
+        
+        foreach ($admins as $admin) {
+            try {
+                $this->sendEmailViaSendGrid($admin['email'], $subject, $body, $admin['first_name']);
+            } catch (Exception $e) {
+                // Continue
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Send email via SendGrid API
+     */
+    private function sendEmailViaSendGrid($to, $subject, $body, $toName = '')
+    {
+        $apiKey = getenv('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            return false;
+        }
+        
+        $fromEmail = MAIL_FROM_ADDRESS;
+        $fromName = MAIL_FROM_NAME;
+        
+        $data = [
+            'personalizations' => [
+                [
+                    'to' => [['email' => $to, 'name' => $toName]],
+                    'subject' => $subject
+                ]
+            ],
+            'from' => ['email' => $fromEmail, 'name' => $fromName],
+            'content' => [
+                ['type' => 'text/html', 'value' => $body]
+            ]
+        ];
+        
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return ($httpCode === 202);
     }
 }
