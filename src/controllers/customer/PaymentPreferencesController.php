@@ -159,6 +159,13 @@ class PaymentPreferencesController
                 ]);
             }
             
+            // Notify admins about payment preferences change
+            try {
+                $this->sendEmailToAdminPaymentPreferencesUpdate($paymentMethod, $accountHolder);
+            } catch (Exception $e) {
+                // Swallow exception
+            }
+            
             $result['success'] = 'Betaalvoorkeuren succesvol opgeslagen';
             $result['preferences'] = $this->getPreferences();
             
@@ -174,5 +181,96 @@ class PaymentPreferencesController
         $stmt = $this->db->prepare("SELECT * FROM payment_preferences WHERE user_id = ?");
         $stmt->execute([$this->userId]);
         return $stmt->fetch();
+    }
+
+    /**
+     * Send email to admins when payment preferences are updated
+     */
+    private function sendEmailToAdminPaymentPreferencesUpdate($paymentMethod, $accountHolder = '') {
+        $stmt = $this->db->prepare("SELECT email, first_name FROM users WHERE role = 'admin' AND active = 1");
+        $stmt->execute();
+        $admins = $stmt->fetchAll();
+        
+        if (empty($admins)) {
+            return false;
+        }
+        
+        // Get user info
+        $userStmt = $this->db->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+        $userStmt->execute([$this->userId]);
+        $user = $userStmt->fetch();
+        
+        if (!$user) {
+            return false;
+        }
+        
+        $userName = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+        $paymentMethodDisplay = $paymentMethod === 'direct_debit' ? 'Automatisch incasso' : 'Factuur';
+        
+        $body = "<html><body>";
+        $body .= "<p>Beste beheerder,</p>";
+        $body .= "<p>Klant <strong>" . $userName . "</strong> (ID: " . $this->userId . ") heeft hun betaalvoorkeuren bijgewerkt.</p>";
+        $body .= "<p><strong>Betaalmethode:</strong> " . htmlspecialchars($paymentMethodDisplay) . "</p>";
+        if (!empty($accountHolder)) {
+            $body .= "<p><strong>Rekeninghouder:</strong> " . htmlspecialchars($accountHolder) . "</p>";
+        }
+        $body .= "<p>Met vriendelijke groet,<br>DMG Klantportaal</p>";
+        $body .= "</body></html>";
+        
+        $subject = 'Betaalvoorkeuren bijgewerkt: ' . $userName;
+        
+        foreach ($admins as $admin) {
+            try {
+                $this->sendEmailViaSendGrid($admin['email'], $subject, $body, $admin['first_name']);
+            } catch (Exception $e) {
+                // Continue
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Send email via SendGrid API
+     */
+    private function sendEmailViaSendGrid($to, $subject, $body, $toName = '') {
+        $apiKey = getenv('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            return false;
+        }
+        
+        $fromEmail = MAIL_FROM_ADDRESS;
+        $fromName = MAIL_FROM_NAME;
+        
+        $data = [
+            'personalizations' => [
+                [
+                    'to' => [['email' => $to, 'name' => $toName]],
+                    'subject' => $subject
+                ]
+            ],
+            'from' => ['email' => $fromEmail, 'name' => $fromName],
+            'content' => [
+                ['type' => 'text/html', 'value' => $body]
+            ]
+        ];
+        
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return ($httpCode === 202);
     }
 }
