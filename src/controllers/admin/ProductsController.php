@@ -176,6 +176,13 @@ class ProductsController
                 ");
                 $stmt->execute([$this->auth->getCurrentUserId(), $requestId]);
 
+                // Send approval email to customer
+                try {
+                    $this->sendEmailToCustomerApproval($request);
+                } catch (Exception $e) {
+                    // Swallow exception
+                }
+
                 return ['success' => 'Product aanvraag goedgekeurd en product aangemaakt', 'error' => ''];
             }
         }
@@ -313,5 +320,89 @@ class ProductsController
         $data['cancellationsPage'] = $cancellationsPage;
 
         return $data;
+    }
+
+    /**
+     * Send approval email to customer when their product request is approved
+     */
+    private function sendEmailToCustomerApproval($request)
+    {
+        // Get customer info
+        $userStmt = $this->db->prepare("SELECT email, first_name, last_name FROM users WHERE id = ?");
+        $userStmt->execute([$request['user_id']]);
+        $user = $userStmt->fetch();
+        
+        if (!$user || empty($user['email'])) {
+            return false;
+        }
+        
+        // Get product type name
+        $typeStmt = $this->db->prepare("SELECT name FROM product_types WHERE id = ?");
+        $typeStmt->execute([$request['product_type_id']]);
+        $type = $typeStmt->fetch();
+        
+        $customerName = htmlspecialchars($user['first_name']);
+        $typeName = $type ? htmlspecialchars($type['name']) : 'Onbekend';
+        $productName = htmlspecialchars($request['requested_name']);
+        $dashboardUrl = rtrim(APP_URL, '/') . '/customer/products.php';
+        
+        $body = "<html><body>";
+        $body .= "<p>Beste " . $customerName . ",</p>";
+        $body .= "<p>Goed nieuws! Uw aanvraag voor het product <strong>" . $productName . "</strong> is goedgekeurd.</p>";
+        $body .= "<p><strong>Type:</strong> " . $typeName . "</p>";
+        $body .= "<p>Het product is nu actief en beschikbaar in uw account. U kunt dit zien in uw productlijst.</p>";
+        $body .= "<p><a href=\"" . $dashboardUrl . "\">Bekijk uw producten</a></p>";
+        $body .= "<p>Dank u wel dat u gebruik maakt van onze diensten!</p>";
+        $body .= "<p>Met vriendelijke groet,<br>DMG Klantportaal</p>";
+        $body .= "</body></html>";
+        
+        $subject = 'Uw productaanvraag is goedgekeurd: ' . $productName;
+        
+        return $this->sendEmailViaSendGrid($user['email'], $subject, $body, $customerName);
+    }
+
+    /**
+     * Send email via SendGrid API
+     */
+    private function sendEmailViaSendGrid($to, $subject, $body, $toName = '')
+    {
+        $apiKey = getenv('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            return false;
+        }
+        
+        $fromEmail = MAIL_FROM_ADDRESS;
+        $fromName = MAIL_FROM_NAME;
+        
+        $data = [
+            'personalizations' => [
+                [
+                    'to' => [['email' => $to, 'name' => $toName]],
+                    'subject' => $subject
+                ]
+            ],
+            'from' => ['email' => $fromEmail, 'name' => $fromName],
+            'content' => [
+                ['type' => 'text/html', 'value' => $body]
+            ]
+        ];
+        
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return ($httpCode === 202);
     }
 }
