@@ -105,7 +105,7 @@ class CancelProductController
         $body .= "<p>Klant <strong>" . $userName . "</strong> heeft een opzegverzoek ingediend voor product <strong>" . $productName . "</strong>:</p>";
         $body .= "<p><strong>Reden:</strong></p>";
         $body .= "<div style=\"border-left:4px solid #ccc;padding-left:8px;margin:8px 0;\">" . $safeReason . "</div>";
-        $body .= "<p>Het product zal worden verwijderd op de vervaldatum of zodra u het verzoek goedkeurt.</p>";
+        $body .= "<p>Het product zal worden verwijderd op de vervaldatum u hoeft nu niets te doen.</p>";
         $body .= "<p>Met vriendelijke groet,<br>DMG Klantportaal</p>";
         $body .= "</body></html>";
         
