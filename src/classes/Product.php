@@ -83,8 +83,20 @@ class Product {
     }
     
     public function delete($id) {
+        $product = $this->getById($id);
         $stmt = $this->db->prepare("DELETE FROM products WHERE id = ?");
-        return $stmt->execute([$id]);
+        $result = $stmt->execute([$id]);
+        
+        // Notify admins about actual product deletion
+        if ($result && $product) {
+            try {
+                $this->sendEmailToAdminProductDeleted($id, $product);
+            } catch (Exception $e) {
+                // Swallow exception
+            }
+        }
+        
+        return $result;
     }
 
     public function activateProduct($id) {
@@ -125,5 +137,90 @@ class Product {
         ");
         $stmt->execute([(int)$days]);
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Send email to admins when a product is actually deleted
+     */
+    private function sendEmailToAdminProductDeleted($productId, $product) {
+        $stmt = $this->db->prepare("SELECT email, first_name FROM users WHERE role = 'admin' AND active = 1");
+        $stmt->execute();
+        $admins = $stmt->fetchAll();
+        
+        if (empty($admins)) {
+            return false;
+        }
+        
+        // Get user info
+        $userStmt = $this->db->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+        $userStmt->execute([$product['user_id']]);
+        $user = $userStmt->fetch();
+        
+        $userName = $user ? htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) : 'Onbekend';
+        $productName = htmlspecialchars($product['name']);
+        
+        $body = "<html><body>";
+        $body .= "<p>Beste beheerder,</p>";
+        $body .= "<p>Product verwijderd voor klant <strong>" . $userName . "</strong>:</p>";
+        $body .= "<p><strong>Product:</strong> " . $productName . " (ID: " . $productId . ")</p>";
+        $body .= "<p>Het product is nu permanent uit het systeem verwijderd.</p>";
+        $body .= "<p>Met vriendelijke groet,<br>DMG Klantportaal</p>";
+        $body .= "</body></html>";
+        
+        $subject = 'Product permanent verwijderd: ' . $productName;
+        
+        foreach ($admins as $admin) {
+            try {
+                $this->sendEmailViaSendGrid($admin['email'], $subject, $body, $admin['first_name']);
+            } catch (Exception $e) {
+                // Continue
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Send email via SendGrid API
+     */
+    private function sendEmailViaSendGrid($to, $subject, $body, $toName = '') {
+        $apiKey = getenv('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            return false;
+        }
+        
+        $fromEmail = MAIL_FROM_ADDRESS;
+        $fromName = MAIL_FROM_NAME;
+        
+        $data = [
+            'personalizations' => [
+                [
+                    'to' => [['email' => $to, 'name' => $toName]],
+                    'subject' => $subject
+                ]
+            ],
+            'from' => ['email' => $fromEmail, 'name' => $fromName],
+            'content' => [
+                ['type' => 'text/html', 'value' => $body]
+            ]
+        ];
+        
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return ($httpCode === 202);
     }
 }
