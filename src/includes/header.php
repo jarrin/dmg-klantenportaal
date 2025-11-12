@@ -93,8 +93,23 @@ function navActive($linkPath, $currentPath) {
                     <p class="welcome-subtitle"><?php echo htmlspecialchars($userEmail); ?></p>
                 </div>
                 <div class="header-actions">
-                    <div class="user-avatar">
-                        <?php echo strtoupper(substr($userName, 0, 1)); ?>
+                    <div class="user-menu">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            <?php echo strtoupper(substr($userName, 0, 1)); ?>
+                        </div>
+                        <div id="userDropdown" class="user-dropdown">
+                            <a href="<?php echo $isAdmin ? '/views/admin/dashboard.php' : '/views/customer/profile.php'; ?>">
+                                <i class="<?php echo $isAdmin ? 'nav-icon fas fa-chart-line' : 'fas fa-user'; ?>"></i><?php echo $isAdmin ? 'Dashboard' : ' Mijn Profiel'; ?>
+                            </a>
+
+                            <a href="<?php echo $isAdmin ? '/views/admin/tickets.php' : '/views/customer/tickets.php'; ?>">
+                                <i class="fas fa-ticket-alt"></i> Mijn Tickets
+                            </a>
+
+                            <a href="/logout.php">
+                                <i class="fas fa-sign-out-alt"></i> Uitloggen
+                            </a>
+                        </div>
                     </div>
                 </div>
             </header>
