@@ -10,6 +10,7 @@
     <script src="/js/confirm-modal.js"></script>
     <script src="/js/user-filter.js"></script>
     <script src="/js/product-filter.js"></script>
-    <script src="/js/ticket-filter.js"></script>
+    <script src="/js/ticket-filter.js"></script>    
+    <script src="/js/user-avatar.js"></script>
 </body>
 </html>
