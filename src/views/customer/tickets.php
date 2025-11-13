@@ -49,21 +49,22 @@ $pageTitle = 'Tickets - ' . APP_NAME;
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('newTicketForm').classList.add('hidden')">&times;</span>
             <h2>Nieuw Ticket Aanmaken</h2>
-            <form method="POST" action="">
+            <form method="POST" action="" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="subject">Onderwerp *</label>
                     <input type="text" id="subject" name="subject" required>
                 </div>
-
                 <div class="form-group">
                     <label for="message">Bericht *</label>
                     <textarea id="message" name="message" rows="6" required></textarea>
                 </div>
-
+                <div class="form-group">
+                    <label for="attachment">Bijlage</label>
+                    <input type="file" id="attachment" name="attachment">
+                    <small>Max: 5MB. Alleen PDF, JPG, PNG, DOCX toegestaan.</small>
+                </div>
                 <button type="submit" class="btn btn-primary">Ticket aanmaken</button>
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('newTicketForm').classList.add('hidden')">
-                    Annuleren
-                </button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('newTicketForm').classList.add('hidden')">Annuleren</button>
             </form>
         </div>
     </div>

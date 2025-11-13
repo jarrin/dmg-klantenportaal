@@ -48,40 +48,37 @@ class Ticket {
         return $stmt->fetch();
     }
     
-    public function create($userId, $subject, $message, $priority = 'medium') {
+   public function create($userId, $subject, $message, $priority = 'medium', $attachmentPath = null) {
+    try {
+        $this->db->beginTransaction();
+
+        $stmt = $this->db->prepare("
+            INSERT INTO tickets (user_id, subject, priority, status, attachment) 
+            VALUES (?, ?, ?, 'new', ?)
+        ");
+        $stmt->execute([$userId, $subject, $priority, $attachmentPath]);
+        $ticketId = $this->db->lastInsertId();
+
+        $stmt = $this->db->prepare("
+            INSERT INTO ticket_messages (ticket_id, user_id, message, is_staff_reply) 
+            VALUES (?, ?, ?, 0)
+        ");
+        $stmt->execute([$ticketId, $userId, $message]);
+
+        $this->db->commit();
+
         try {
-            $this->db->beginTransaction();
-            
-            // Create ticket
-            $stmt = $this->db->prepare("
-                INSERT INTO tickets (user_id, subject, priority, status) 
-                VALUES (?, ?, ?, 'new')
-            ");
-            $stmt->execute([$userId, $subject, $priority]);
-            $ticketId = $this->db->lastInsertId();
-            
-            // Add initial message
-            $stmt = $this->db->prepare("
-                INSERT INTO ticket_messages (ticket_id, user_id, message, is_staff_reply) 
-                VALUES (?, ?, ?, 0)
-            ");
-            $stmt->execute([$ticketId, $userId, $message]);
-            
-            $this->db->commit();
-            
-            // Notify admins about new ticket
-            try {
-                $this->sendEmailToAdminNewTicket($ticketId, $userId, $subject, $message);
-            } catch (Exception $e) {
-                // Swallow exception to avoid breaking flow
-            }
-            
-            return $ticketId;
+            $this->sendEmailToAdminNewTicket($ticketId, $userId, $subject, $message);
         } catch (Exception $e) {
-            $this->db->rollBack();
-            throw $e;
         }
+
+        return $ticketId;
+    } catch (Exception $e) {
+        $this->db->rollBack();
+        throw $e;
     }
+}
+
     
     public function addMessage($ticketId, $userId, $message, $isStaffReply = false) {
         $stmt = $this->db->prepare("
