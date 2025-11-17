@@ -80,12 +80,12 @@ class Ticket {
 }
 
     
-    public function addMessage($ticketId, $userId, $message, $isStaffReply = false) {
+    public function addMessage($ticketId, $userId, $message, $isStaffReply = false , $attachment = null) {
         $stmt = $this->db->prepare("
-            INSERT INTO ticket_messages (ticket_id, user_id, message, is_staff_reply) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO ticket_messages (ticket_id, user_id, message, is_staff_reply, attachment) 
+            VALUES (?, ?, ?, ?, ?)
         ");
-            $result = $stmt->execute([$ticketId, $userId, $message, $isStaffReply ? 1 : 0]);
+            $result = $stmt->execute([$ticketId, $userId, $message, $isStaffReply ? 1 : 0, $attachment]);
 
             // If the message was posted by staff, try to notify the customer by email.
             if ($result && $isStaffReply) {
