@@ -94,6 +94,56 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
     <?php if ($error): ?>
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
+    <div class="ticket-messages">
+            <div class="ticket-details">
+            <h2><?php echo htmlspecialchars($data['ticket']['subject']); ?></h2>
+            <div class="ticket-attachment">
+                <?php if (!empty($data['ticket']['attachment'])): ?>
+                <?php 
+                    $file = '/uploads/tickets/' . rawurlencode(basename($data['ticket']['attachment']));
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                ?>
+                    <style>
+                        .ticket-attachment {
+                            background: var(--light-color);
+                            padding: 15px;
+                            border-radius: 8px;
+                            border-left: 4px solid var(--border-color);
+                            margin-top: 15px;
+                            margin-bottom: 15px;
+                        }
+
+                        .ticket-attachment img {
+                            max-width: 50%;
+                            border-radius: 5px;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                            margin-top: 10px;
+                        }
+
+                        .ticket-attachment a.pdf-link {
+                            display: inline-block;
+                            margin-top: 10px;
+                            font-weight: 600;
+                            color: var(--primary-color);
+                            text-decoration: none;
+                        }
+
+                        .ticket-attachment a.pdf-link:hover {
+                            text-decoration: underline;
+                        }
+                    </style>
+
+                    <?php if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                        <img src="<?php echo $file; ?>" alt="Bijlage">
+                    <?php elseif ($ext === 'pdf'): ?>
+                        <p>Bijlage (PDF): <a href="<?php echo $file; ?>" download class="pdf-link">Download PDF</a></p>
+                    <?php else: ?>
+                        <p>Bijlage: <a href="<?php echo $file; ?>" download class="pdf-link">Download bestand</a></p>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
 
     <div class="ticket-messages">
         <h2>Berichten</h2>
@@ -113,20 +163,43 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
                 <div class="message-content">
                     <?php echo nl2br(htmlspecialchars($message['message'])); ?>
                 </div>
+                <?php if (!empty($message['attachment'])): ?>
+                <?php 
+                    $file = $message['attachment'];
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                ?>
+
+                <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                    <div class="message-attachment">
+                        <img src="<?php echo $file; ?>" style="max-width:300px; border-radius:5px; margin-top: 10px;">
+                    </div>
+
+                <?php elseif ($ext === 'pdf'): ?>
+                    <p>PDF Bijlage: <a href="<?php echo $file; ?>" download>Download PDF</a></p>
+
+                <?php else: ?>
+                    <p>Bijlage: <a href="<?php echo $file; ?>" download>Download bestand</a></p>
+                <?php endif; ?>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>
 
     <div class="dashboard-section">
         <h2>Antwoord Toevoegen</h2>
-        <form method="POST" action="">
-            <input type="hidden" name="action" value="reply">
-            <div class="form-group full-width">
-                <label for="message">Uw antwoord</label>
-                <textarea id="message" name="message" rows="6" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Antwoord Verzenden</button>
-        </form>
+        <form method="POST" action="" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="reply">
+                <div class="form-group full-width">
+                    <label for="message">Uw antwoord</label>
+                    <textarea id="message" name="message" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="attachment">Bijlage toevoegen (optioneel)</label>
+                    <input type="file" name="attachment" id="attachment" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                    <small>Max: 5MB. Alleen PDF, JPG, PNG, DOCX toegestaan.</small>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Bericht verzenden</button>
+            </form>
     </div>
 </div>
 

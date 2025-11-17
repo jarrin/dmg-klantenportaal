@@ -95,7 +95,7 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
                     }
 
                     .ticket-attachment img {
-                        max-width: 100%;
+                        max-width: 50%;
                         border-radius: 5px;
                         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
                         margin-top: 10px;
@@ -160,7 +160,7 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
                     <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
                         <img src="<?php echo $file; ?>" 
                              alt="Bijlage" 
-                             style="max-width:300px; border-radius:5px; display:block;">
+                             style="max-width:300px; border-radius:5px; margin-top: 10px; display:block;">
 
                     <?php elseif ($ext === 'pdf'): ?>
                         <p>PDF Bijlage: 
@@ -206,12 +206,19 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
         </div>
         <div class="dashboard-section">
             <h2>Ticket Heropenen</h2>
-            <form method="POST" action="">
-                <div class="form-group">
+            <form method="POST" action="" enctype="multipart/form-data">
+                <div class="form-group full-width">
                     <label for="message">Uw bericht</label>
                     <textarea id="message" name="message" rows="6" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Ticket heropenen en bericht verzenden</button>
+
+                <div class="form-group">
+                    <label for="attachment">Bijlage toevoegen (optioneel)</label>
+                    <input type="file" name="attachment" id="attachment" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                    <small>Max: 5MB. Alleen PDF, JPG, PNG, DOCX toegestaan.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width">Ticket heropenen en bericht verzenden</button>
             </form>
         </div>
     <?php endif; ?>
