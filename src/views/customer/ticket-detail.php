@@ -76,60 +76,12 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
     <?php endif; ?>
 
     <div class="ticket-messages">
-        <div class="ticket-details">
-        <h2><?php echo htmlspecialchars($data['ticket']['subject']); ?></h2>
-        <div class="ticket-attachment">
-            <?php if (!empty($data['ticket']['attachment'])): ?>
-            <?php 
-                $file = '/uploads/tickets/' . rawurlencode(basename($data['ticket']['attachment']));
-                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-            ?>
-                <style>
-                    .ticket-attachment {
-                        background: var(--light-color);
-                        padding: 15px;
-                        border-radius: 8px;
-                        border-left: 4px solid var(--border-color);
-                        margin-top: 15px;
-                        margin-bottom: 15px;
-                    }
-
-                    .ticket-attachment img {
-                        max-width: 50%;
-                        border-radius: 5px;
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                        margin-top: 10px;
-                    }
-
-                    .ticket-attachment a.pdf-link {
-                        display: inline-block;
-                        margin-top: 10px;
-                        font-weight: 600;
-                        color: var(--primary-color);
-                        text-decoration: none;
-                    }
-
-                    .ticket-attachment a.pdf-link:hover {
-                        text-decoration: underline;
-                    }
-                </style>
-
-                <?php if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
-                    <img src="<?php echo $file; ?>" alt="Bijlage">
-                <?php elseif ($ext === 'pdf'): ?>
-                    <p>Bijlage (PDF): <a href="<?php echo $file; ?>" download class="pdf-link">Download PDF</a></p>
-                <?php else: ?>
-                    <p>Bijlage: <a href="<?php echo $file; ?>" download class="pdf-link">Download bestand</a></p>
-                <?php endif; ?>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
-
-<div class="ticket-messages">
-    <h2>Berichten</h2>
+        <h2>Berichten</h2>
 
     <?php foreach ($messages as $message): ?>
+        <?php if (empty(trim($message['message'])) && empty($message['attachment'])): ?>
+            <?php continue; ?>
+        <?php endif; ?>
         <div class="message <?php echo $message['is_staff_reply'] ? 'staff-reply' : 'customer-message'; ?>">
 
             <div class="message-header">

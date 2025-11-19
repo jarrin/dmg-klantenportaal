@@ -101,6 +101,22 @@ class CustomerTicketDetailController
 
         $data['messages'] = $this->ticketModel->getMessages($ticketId);
 
+        // Add the initial ticket as the first message
+        $initialMessage = [
+            'id' => 'ticket_' . $data['ticket']['id'],
+            'user_id' => $data['ticket']['user_id'],
+            'first_name' => $data['ticket']['first_name'] ?? '',
+            'last_name' => $data['ticket']['last_name'] ?? '',
+            'role' => $data['ticket']['role'] ?? 'customer',
+            'message' => $data['ticket']['description'] ?? '',
+            'attachment' => $data['ticket']['attachment'] ? '/uploads/tickets/' . basename($data['ticket']['attachment']) : null,
+            'created_at' => $data['ticket']['created_at'],
+            'is_staff_reply' => false
+        ];
+
+        // Insert initial ticket message at the beginning
+        array_unshift($data['messages'], $initialMessage);
+
         return $data;
     }
 }

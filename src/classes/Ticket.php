@@ -53,17 +53,17 @@ class Ticket {
         $this->db->beginTransaction();
 
         $stmt = $this->db->prepare("
-            INSERT INTO tickets (user_id, subject, priority, status, attachment) 
-            VALUES (?, ?, ?, 'new', ?)
+            INSERT INTO tickets (user_id, subject, priority, status) 
+            VALUES (?, ?, ?, 'new')
         ");
-        $stmt->execute([$userId, $subject, $priority, $attachmentPath]);
+        $stmt->execute([$userId, $subject, $priority]);
         $ticketId = $this->db->lastInsertId();
 
         $stmt = $this->db->prepare("
-            INSERT INTO ticket_messages (ticket_id, user_id, message, is_staff_reply) 
-            VALUES (?, ?, ?, 0)
+            INSERT INTO ticket_messages (ticket_id, user_id, message, is_staff_reply, attachment) 
+            VALUES (?, ?, ?, 0, ?)
         ");
-        $stmt->execute([$ticketId, $userId, $message]);
+        $stmt->execute([$ticketId, $userId, $message, $attachmentPath]);
 
         $this->db->commit();
 
