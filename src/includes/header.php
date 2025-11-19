@@ -94,8 +94,11 @@ function navActive($linkPath, $currentPath) {
                 </div>
                 <div class="header-actions">
                     <div class="user-menu">
-                        <div class="user-avatar" onclick="toggleUserMenu()">
+                        <div class="user-avatar">
                             <?php echo strtoupper(substr($userName, 0, 1)); ?>
+                            <button class="avatar-toggle" aria-label="Open gebruikersmenu" onclick="toggleUserMenu(event)">
+                                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                            </button>
                         </div>
                         <div id="userDropdown" class="user-dropdown">
                             <a href="<?php echo $isAdmin ? '/views/admin/dashboard.php' : '/views/customer/profile.php'; ?>">

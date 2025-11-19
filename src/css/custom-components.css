@@ -384,18 +384,19 @@
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.3s ease;
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: default;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    position: relative;
 }
 
 .user-avatar:hover {
@@ -437,6 +438,60 @@
 
 .user-dropdown a:hover {
   background: #f2f2f2;
+}
+
+/* Small circular toggle button inside avatar */
+.avatar-toggle {
+    position: absolute;
+    /* place it centered at the bottom, slightly overlapping the avatar */
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    /* transparent background as requested */
+    background: transparent;
+    color: #ffffff; /* keep chevron visible on blue avatar */
+    border: 0; /* no square border */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 12px;
+    transition: transform 160ms ease, color 160ms ease;
+    z-index: 120;
+}
+
+.avatar-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
+}
+
+/* Rotate chevron when dropdown is open */
+.avatar-toggle i {
+    transition: transform 200ms ease;
+    font-size: 11px;
+}
+.avatar-toggle.open i {
+    transform: rotate(180deg);
+}
+
+/* Slight hover feedback (subtle lightening of chevron) */
+.avatar-toggle:hover {
+    color: #f0f0f0;
+}
+
+/* Bring avatar hover subtlety */
+.user-avatar:hover {
+    background-color: #0069d9;
+}
+
+/* Ensure dropdown sits above other content */
+.user-dropdown {
+    z-index: 2000;
 }
 
 @media (max-width: 600px) {
