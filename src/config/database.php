@@ -15,6 +15,8 @@ class Database {
         
         try {
             $this->connection = new PDO($dsn, DB_USER, DB_PASSWORD, $options);
+            // Set timezone for the database connection
+            $this->connection->exec("SET time_zone = '+01:00'");
         } catch (PDOException $e) {
             throw new Exception("Connection failed: " . $e->getMessage());
         }
