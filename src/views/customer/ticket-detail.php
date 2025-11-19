@@ -144,9 +144,11 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
                 </div>
 
                 <div class="form-group">
-                    <label for="attachment">Bijlage toevoegen (optioneel)</label>
-                    <input type="file" name="attachment" id="attachment" accept=".pdf,.png,.jpg,.jpeg,.docx">
-                    <small>Max: 5MB. Alleen PDF, JPG, PNG, DOCX toegestaan.</small>
+                    <input type="file" name="attachment" id="attachment" style="display: none;" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                    <button type="button" class="btn btn-secondary full-width" onclick="document.getElementById('attachment').click()">
+                        📎 Bijlage toevoegen (optioneel)
+                    </button>
+                    <small id="attachment-name" style="display: block; margin-top: 8px; color: #666;"></small>
                 </div>
 
                 <button type="submit" class="btn btn-primary full-width">Bericht verzenden</button>
@@ -165,9 +167,11 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
                 </div>
 
                 <div class="form-group">
-                    <label for="attachment">Bijlage toevoegen (optioneel)</label>
-                    <input type="file" name="attachment" id="attachment" accept=".pdf,.png,.jpg,.jpeg,.docx">
-                    <small>Max: 5MB. Alleen PDF, JPG, PNG, DOCX toegestaan.</small>
+                    <input type="file" name="attachment" id="attachment-reopen" style="display: none;" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                    <button type="button" class="btn btn-secondary full-width" onclick="document.getElementById('attachment-reopen').click()">
+                        📎 Bijlage toevoegen (optioneel)
+                    </button>
+                    <small id="attachment-name-reopen" style="display: block; margin-top: 8px; color: #666;"></small>
                 </div>
 
                 <button type="submit" class="btn btn-primary full-width">Ticket heropenen en bericht verzenden</button>
@@ -175,5 +179,35 @@ $pageTitle = 'Ticket #' . $ticket['id'] . ' - ' . APP_NAME;
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+// Handle attachment for "Antwoord Toevoegen" form
+const attachmentInput = document.getElementById('attachment');
+if (attachmentInput) {
+    attachmentInput.addEventListener('change', function() {
+        const attachmentName = document.getElementById('attachment-name');
+        if (this.files && this.files.length > 0) {
+            attachmentName.textContent = '✓ Gekozen: ' + this.files[0].name;
+            attachmentName.style.color = '#4CAF50';
+        } else {
+            attachmentName.textContent = '';
+        }
+    });
+}
+
+// Handle attachment for "Ticket Heropenen" form
+const attachmentReopenInput = document.getElementById('attachment-reopen');
+if (attachmentReopenInput) {
+    attachmentReopenInput.addEventListener('change', function() {
+        const attachmentNameReopen = document.getElementById('attachment-name-reopen');
+        if (this.files && this.files.length > 0) {
+            attachmentNameReopen.textContent = '✓ Gekozen: ' + this.files[0].name;
+            attachmentNameReopen.style.color = '#4CAF50';
+        } else {
+            attachmentNameReopen.textContent = '';
+        }
+    });
+}
+</script>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

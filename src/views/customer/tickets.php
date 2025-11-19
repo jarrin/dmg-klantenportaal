@@ -59,9 +59,11 @@ $pageTitle = 'Tickets - ' . APP_NAME;
                     <textarea id="message" name="message" rows="6" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="attachment">Bijlage</label>
-                    <input type="file" id="attachment" name="attachment">
-                    <small>Max: 5MB. Alleen PDF, JPG, PNG, DOCX toegestaan.</small>
+                    <input type="file" id="attachment" name="attachment" style="display: none;" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('attachment').click()" style="width: 100%;">
+                        📎 Bijlage toevoegen (optioneel)
+                    </button>
+                    <small id="attachment-name" style="display: block; margin-top: 8px; color: #666;"></small>
                 </div>
                 <button type="submit" class="btn btn-primary">Ticket aanmaken</button>
                 <button type="button" class="btn btn-secondary" onclick="document.getElementById('newTicketForm').classList.add('hidden')">Annuleren</button>
@@ -119,9 +121,21 @@ $pageTitle = 'Tickets - ' . APP_NAME;
             </tbody>
         </table>
 
-        <?php echo $paginator->render('tickets.php', ['per_page' => $perPage]); ?>
+        <?php echo $paginator->render('tickets.php  ', ['per_page' => $perPage]); ?>
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+document.getElementById('attachment').addEventListener('change', function() {
+    const attachmentName = document.getElementById('attachment-name');
+    if (this.files && this.files.length > 0) {
+        attachmentName.textContent = '✓ Gekozen: ' + this.files[0].name;
+        attachmentName.style.color = '#4CAF50';
+    } else {
+        attachmentName.textContent = '';
+    }
+});
+</script>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>
